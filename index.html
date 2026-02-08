@@ -19,7 +19,7 @@
                         "primary": "#0a0a0a",
                         "border-light": "#e5e5e5",
                         "subtle": "#f5f5f5",
-                        "code-bg": "#1e293b", // The specific dark blue for code blocks
+                        "code-bg": "#1e293b",
                     },
                     fontFamily: {
                         "display": ["Inter", "sans-serif"],
@@ -33,16 +33,9 @@
         }
     </script>
     <style>
-        /* Smooth transitions */
         .icon-container { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        
-        /* Code Block Styling */
         .code-block { background-color: #1e293b; color: #e5e7eb; }
-        
-        /* Scroll behavior */
         html { scroll-behavior: smooth; }
-        
-        /* Checkerboard Background */
         .bg-checkerboard {
             background-color: white;
             background-image: 
@@ -52,12 +45,8 @@
                 linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
             background-size: 20px 20px;
         }
-        
-        /* Swatch Button Styles */
         .swatch-btn { position: relative; }
         .swatch-btn::after { content: ''; position: absolute; inset: -2px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.1); }
-        
-        /* Format Toggle Active State */
         .fmt-btn.active { background-color: white; color: black; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .fmt-btn { color: #6b7280; }
     </style>
@@ -81,7 +70,7 @@
     
     <div class="w-full text-center mb-12 space-y-4">
         <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-primary">Headless Design API</h2>
-        <p class="text-gray-500 text-lg">One API for Brand Logos, Social Icons, and UI elements.</p>
+        <p class="text-gray-500 text-lg">Search for your desired logo/icon here. Explore the World of Icons just by typing a word in the Search Box.</p>
     </div>
 
     <div class="w-full bg-white border border-border-light rounded-2xl shadow-sm overflow-hidden mb-24 transition-shadow hover:shadow-md">
@@ -184,7 +173,7 @@
                         <code class="font-mono text-xs leading-relaxed">
                             <span class="text-gray-500">&lt;!-- Just use it as an image source --&gt;</span><br>
                             &lt;<span class="text-pink-400">img</span><br>
-                            &nbsp;&nbsp;<span class="text-blue-300">src</span>="<span class="text-green-300">https://iconflow.vercel.app/api/render?q=google&color=000&size=24</span>"<br>
+                            &nbsp;&nbsp;<span class="text-blue-300">src</span>="<span class="text-green-300"><span class="dynamic-domain">https://iconflow.vercel.app</span>/api/render?q=google&color=red&size=24</span>"<br>
                             &nbsp;&nbsp;<span class="text-blue-300">alt</span>="<span class="text-yellow-300">Google Logo</span>"<br>
                             &nbsp;&nbsp;<span class="text-blue-300">width</span>="<span class="text-yellow-300">24</span>"<br>
                             /&gt;
@@ -208,7 +197,7 @@
                         <code class="font-mono text-xs leading-relaxed">
                             <span class="text-purple-400">export const</span> Icon = ({ <span class="text-orange-300">name</span>, <span class="text-orange-300">color</span> }) => (<br>
                             &nbsp;&nbsp;&lt;<span class="text-pink-400">img</span><br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-300">src</span>={`https://iconflow.vercel.app/api/render?q=${name}&color=${color}&size=24`}<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-300">src</span>={`<span class="dynamic-domain">https://iconflow.vercel.app</span>/api/render?q=${name}&color=${color}&size=24`}<br>
                             &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-300">className</span>="<span class="text-green-300">w-6 h-6</span>"<br>
                             &nbsp;&nbsp;/&gt;<br>
                             );<br><br>
@@ -232,7 +221,7 @@
                     <div class="code-block p-6 rounded-2xl overflow-x-auto shadow-2xl">
                         <code class="font-mono text-xs leading-relaxed">
                             <span class="text-yellow-300">.btn-icon</span> {<br>
-                            &nbsp;&nbsp;<span class="text-blue-300">background-image</span>: <span class="text-purple-400">url</span>('<span class="text-green-300">https://iconflow.vercel.app/api/render?q=menu&color=white&size=20</span>');<br>
+                            &nbsp;&nbsp;<span class="text-blue-300">background-image</span>: <span class="text-purple-400">url</span>('<span class="text-green-300"><span class="dynamic-domain">https://iconflow.vercel.app</span>/api/render?q=menu&color=white&size=20</span>');<br>
                             &nbsp;&nbsp;<span class="text-blue-300">background-repeat</span>: no-repeat;<br>
                             &nbsp;&nbsp;<span class="text-blue-300">background-position</span>: center;<br>
                             }
@@ -301,7 +290,7 @@
 </footer>
 
 <script>
-    // Global Setters
+    // --- 1. GLOBAL HELPERS ---
     window.setColor = (val) => { 
         document.getElementById('colorTextInput').value = val; 
         document.getElementById('colorTextInput').dispatchEvent(new Event('input')); 
@@ -316,6 +305,13 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
+        // --- 2. UPDATE DOCS DOMAIN DYNAMICALLY ---
+        // Uses the current URL (e.g. iconflow-steve.vercel.app) to update all docs snippets
+        const currentDomain = window.location.origin;
+        document.querySelectorAll('.dynamic-domain').forEach(el => {
+            el.innerText = currentDomain;
+        });
+
         const els = {
             search: document.getElementById('searchInput'),
             colorText: document.getElementById('colorTextInput'),
@@ -328,7 +324,7 @@
             copyBtn: document.getElementById('copyBtn')
         };
 
-        // --- 1. ANIMATED PLACEHOLDER ---
+        // --- 3. ANIMATED PLACEHOLDER ---
         const placeholders = ["Search for a Logo...", "Search for 'developer'...", "Search for 'apple'...", "Search for 'menu'..."];
         let placeholderIndex = 0;
         setInterval(() => {
@@ -336,26 +332,25 @@
             els.search.setAttribute('placeholder', placeholders[placeholderIndex]);
         }, 2500);
 
-        // --- 2. CLIENT-SIDE FALLBACK (Immediate Preview) ---
+        // --- 4. FALLBACK ICONS (For instant local preview) ---
         const brandIcons = {
-            // SVGs
             'google': '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M21.35 11.1h-9.17v2.98h5.36c-.28 1.6-1.65 4.38-5.36 4.38-3.23 0-5.85-2.65-5.85-5.96s2.62-5.96 5.85-5.96c1.83 0 3.14.78 3.84 1.44l2.25-2.28C16.7 4.29 14.54 3.5 12.18 3.5c-5.18 0-9.38 4.2-9.38 9.38s4.2 9.38 9.38 9.38c5.4 0 8.98-3.8 8.98-9.14 0-.74-.08-1.42-.16-1.92z"/></svg>',
             'github': '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02a9.56 9.56 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>',
             'facebook': '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.17 6 13.54 6c1.14 0 2.32.2 2.32.2v2.55h-1.3c-1.25 0-1.63.77-1.63 1.56V12h2.87l-.46 3h-2.41v6.8c4.56-.93 8-4.96 8-9.8z"/></svg>',
             'apple': '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.5 1.3 0 2.52.88 3.33.88.82 0 2.37-1.09 3.98-0.93 1.12.09 2.15.65 2.72 1.48-2.61 1.35-2.18 5.25.46 6.43-.54 1.57-1.35 3.12-2.6 4.75zM15 5.58c.67-1.15.54-2.73 0-3.58-.8 0-2.07.49-2.75 1.66-.58.98-.44 2.56.03 3.52.74.05 1.99-.5 2.72-1.6z"/></svg>',
             'developer': 'code', 'dev': 'code', 'code': 'code',
-            'menu': 'menu', 'settings': 'settings'
+            'terminal': 'terminal', 'menu': 'menu', 'settings': 'settings'
         };
 
         const state = { query: 'google', color: '#000000', size: 64 };
 
-                const updateUI = async () => {
+        const updateUI = async () => {
             const q = state.query.toLowerCase().trim();
             const rawColor = state.color;
             const format = els.search.dataset.format || 'url';
             const cleanColor = rawColor.replace('#', '');
             
-            // Generate API URL for fetching
+            // Build API URL
             const apiUrl = `/api/render?q=${q}&color=${cleanColor}&size=${state.size}`;
             
             try {
@@ -365,12 +360,11 @@
                     els.previewContainer.innerHTML = svgText;
                     
                     if (format === 'svg') {
-                         // Show Raw SVG Code
                          els.codeContainer.innerText = svgText;
                     } else {
-                         // RESTORED: Colorful URL Syntax Highlighting
+                         // COLORFUL DYNAMIC URL
                          const protocol = '<span class="text-blue-400">https://</span>';
-                         const domain = '<span class="text-gray-400">iconflow.vercel.app/api/</span>';
+                         const domain = `<span class="text-gray-400">${window.location.host}/api/</span>`;
                          const endpoint = '<span class="text-purple-400">render</span>';
                          const paramQ = `<span class="text-gray-500">?q=</span><span class="text-green-400">${q}</span>`;
                          const paramC = `<span class="text-gray-500">&color=</span><span class="text-orange-400">${cleanColor}</span>`;
@@ -380,21 +374,26 @@
                     }
                 } else { throw new Error('API not ready'); }
             } catch(e) {
-                // Fallback Visuals
-                const fallbackIcon = brandIcons[q] || q.replace(/ /g, '_');
-                els.previewContainer.innerHTML = `<span class="material-symbols-outlined" style="font-size: inherit;">${fallbackIcon}</span>`;
-                
-                if (format === 'svg') {
-                     els.codeContainer.innerText = `<svg ...>${q}</svg>`;
+                // FALLBACK VISUALS
+                let renderContent = '';
+                if (brandIcons[q]) {
+                    if(brandIcons[q].startsWith('<svg')) { renderContent = brandIcons[q]; } 
+                    else { renderContent = `<span class="material-symbols-outlined" style="font-size: inherit;">${brandIcons[q]}</span>`; }
                 } else {
-                     // Fallback Colorful URL
+                    renderContent = `<span class="material-symbols-outlined" style="font-size: inherit;">${q.split(' ').join('_')}</span>`;
+                }
+                els.previewContainer.innerHTML = renderContent;
+                
+                // FALLBACK COLORFUL URL
+                if (format === 'svg') {
+                     els.codeContainer.innerText = `<svg width="${state.size}" height="${state.size}" fill="${rawColor}">...</svg>`;
+                } else {
                      const protocol = '<span class="text-blue-400">https://</span>';
-                     const domain = '<span class="text-gray-400">iconflow.vercel.app/api/</span>';
+                     const domain = `<span class="text-gray-400">${window.location.host}/api/</span>`;
                      const endpoint = '<span class="text-purple-400">render</span>';
                      const paramQ = `<span class="text-gray-500">?q=</span><span class="text-green-400">${q}</span>`;
                      const paramC = `<span class="text-gray-500">&color=</span><span class="text-orange-400">${cleanColor}</span>`;
                      const paramS = `<span class="text-gray-500">&size=</span><span class="text-gray-300">${state.size}</span>`;
-                     
                      els.codeContainer.innerHTML = `${protocol}${domain}${endpoint}${paramQ}${paramC}${paramS}`;
                 }
             }
@@ -404,6 +403,7 @@
             els.previewContainer.style.fontSize = state.size + 'px';
             els.previewContainer.style.color = rawColor;
         };
+
         // Listeners
         els.search.addEventListener('input', (e) => { state.query = e.target.value || 'google'; updateUI(); });
         els.colorText.addEventListener('input', (e) => { state.color = e.target.value; updateUI(); });
