@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>IconFlow - Headless Design API</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0a0a0a",
+                        "border-light": "#e5e5e5",
+                        "subtle": "#f5f5f5",
+                        "code-bg": "#1e293b",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"],
+                    },
+                    backgroundImage: {
+                        'checker': 'conic-gradient(#f3f4f6 90deg, transparent 90deg 180deg, #f3f4f6 180deg 270deg, transparent 270deg)',
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .icon-container { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .code-block { background-color: #1e293b; color: #e5e7eb; }
+        html { scroll-behavior: smooth; }
+        
+        .bg-checkerboard {
+            background-color: white;
+            background-image: 
+                linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
+                linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
+                linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+            background-size: 20px 20px;
+        }
+        
+        .swatch-btn { position: relative; }
+        .swatch-btn::after { content: ''; position: absolute; inset: -2px; border-radius: 999px; border: 1px solid rgba(0,0,0,0.1); }
+        
+        .fmt-btn.active { background-color: white; color: black; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .fmt-btn { color: #6b7280; }
+
+        /* --- PREMIUM SLIDER STYLES --- */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #0a0a0a;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 1); 
+            border: 1px solid rgba(0,0,0,0.1);
+            transition: transform 0.1s;
+        }
+        
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e5e5e5;
+            border-radius: 2px;
+        }
+        
+        input[type=range]:focus { outline: none; }
+        
+        /* Hide scrollbar for nav */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none;  scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-white text-primary antialiased min-h-screen flex flex-col font-display">
+
+<header class="w-full border-b border-border-light bg-white sticky top-0 z-50 backdrop-blur-md bg-white/90">
+    <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <span class="material-symbols-outlined text-2xl">grid_view</span>
+            <h1 class="font-mono font-bold text-lg tracking-tight">IconFlow</h1>
+        </div>
+        <nav class="flex items-center gap-3 md:gap-8 overflow-x-auto no-scrollbar ml-4">
+            <a class="text-sm font-medium hover:text-black/70 transition-colors whitespace-nowrap" href="#docs">Developer Guide</a>
+            <a class="text-sm font-medium hover:text-black/70 transition-colors whitespace-nowrap" href="library.html">Icon Library</a>
+            <a class="text-sm font-medium hover:text-black/70 transition-colors whitespace-nowrap cursor-pointer" onclick="openDonateModal()">Donate</a>
+        </nav>
+    </div>
+</header>
+
+<main class="flex-grow flex flex-col items-center w-full px-6 py-12 md:py-20 max-w-5xl mx-auto">
+    
+    <div class="w-full text-center mb-12 space-y-4">
+        <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-primary">Headless Design API</h2>
+        <p class="text-gray-500 text-lg">One API for Brand Logos, Social Icons, and UI elements.</p>
+    </div>
+
+    <div class="w-full bg-white border border-border-light rounded-2xl shadow-sm overflow-hidden mb-24 transition-shadow hover:shadow-md">
+        
+        <div class="p-8 border-b border-border-light bg-gray-50/50">
+            <div class="relative w-full group">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span class="material-symbols-outlined text-gray-400 text-2xl">search</span>
+                </div>
+                <input id="searchInput" class="block w-full pl-12 pr-4 py-4 bg-white border border-border-light rounded-xl text-lg font-mono placeholder:font-sans placeholder:text-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-shadow" placeholder="Search for a Logo..." type="text" value=""/>
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row">
+            
+            <div class="w-full md:w-1/2 p-8 border-b md:border-b-0 md:border-r border-border-light space-y-8 bg-white">
+                
+                <div class="space-y-4">
+                    <label class="text-sm font-medium text-gray-600 flex justify-between">
+                        <span>Color</span>
+                        <span id="colorHexDisplay" class="font-mono text-xs text-gray-400">#000000</span>
+                    </label>
+                    
+                    <div class="flex flex-wrap gap-3">
+                        <button class="w-8 h-8 rounded-full bg-black border-2 border-transparent focus:ring-2 focus:ring-offset-2 focus:ring-black transition-all hover:scale-110 swatch-btn shadow-sm" onclick="setColor('#000000')"></button>
+                        <button class="w-8 h-8 rounded-full bg-white border border-gray-200 focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-all hover:scale-110 swatch-btn shadow-sm" onclick="setColor('#ffffff')"></button>
+                        <button class="w-8 h-8 rounded-full bg-blue-600 border-2 border-transparent focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 transition-all hover:scale-110 swatch-btn shadow-sm" onclick="setColor('#2563eb')"></button>
+                        <button class="w-8 h-8 rounded-full bg-red-500 border-2 border-transparent focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all hover:scale-110 swatch-btn shadow-sm" onclick="setColor('#ef4444')"></button>
+                        <button class="w-8 h-8 rounded-full bg-green-500 border-2 border-transparent focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all hover:scale-110 swatch-btn shadow-sm" onclick="setColor('#22c55e')"></button>
+                        
+                        <div class="flex-1 min-w-[100px] relative">
+                            <input id="colorTextInput" class="w-full h-8 px-3 py-1 text-sm font-mono border border-gray-200 rounded-full focus:ring-2 focus:ring-primary outline-none text-gray-600 shadow-sm" type="text" value="#000000" placeholder="Hex or Name"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="text-sm font-medium text-gray-600 flex justify-between">
+                        <span>Size</span>
+                        <span id="sizeValueDisplay" class="font-mono text-xs text-gray-400">64px</span>
+                    </label>
+                    <input id="sizeSlider" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary" max="128" min="16" type="range" value="64"/>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="text-sm font-medium text-gray-600">Format</label>
+                    <div class="flex p-1 bg-gray-100 rounded-lg">
+                        <button id="btnImgUrl" class="fmt-btn active flex-1 py-1.5 text-sm font-medium rounded-md transition-all" onclick="setFormat('url')">IMG URL</button>
+                        <button id="btnSvgCode" class="fmt-btn flex-1 py-1.5 text-sm font-medium rounded-md transition-all" onclick="setFormat('svg')">SVG CODE</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full md:w-1/2 bg-gray-50 p-8 flex flex-col justify-between relative overflow-hidden">
+                <div class="absolute inset-0 bg-checkerboard opacity-50 pointer-events-none"></div>
+
+                <div class="relative z-10 flex-1 flex flex-col items-center justify-center min-h-[160px]">
+                    <div class="p-8 bg-white/80 backdrop-blur border border-white/50 rounded-xl shadow-sm mb-4 transition-all hover:scale-105 flex items-center justify-center">
+                        <div id="iconPreviewContainer" class="icon-container text-primary flex items-center justify-center leading-none" style="font-size: 64px;">
+                            </div>
+                    </div>
+                    <p id="previewDimensions" class="text-xs text-gray-500 font-mono">64 x 64 • SVG</p>
+                </div>
+
+                <div class="relative z-10 mt-6 space-y-3">
+                    <div class="bg-white border border-border-light rounded-lg p-3 font-mono text-xs text-gray-600 break-all leading-relaxed shadow-sm">
+                        <div id="codeSnippetContent">
+                            </div>
+                    </div>
+                    
+                    <button id="copyBtn" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-black/5 active:scale-[0.98] flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-lg">link</span>
+                        <span>Copy Link</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <section id="docs" class="w-full border-t border-border-light pt-16 mb-24">
+        <div class="mb-12">
+            <h2 class="text-3xl font-bold tracking-tight mb-4">Developer Manual</h2>
+            <p class="text-gray-500 max-w-2xl">Everything you need to integrate IconFlow into your production apps. We support simple HTML embeds, React components, and CSS backgrounds.</p>
+        </div>
+
+        <div class="space-y-16">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-lg">html</span>
+                        </div>
+                        <h3 class="font-bold text-lg">HTML & No-Code</h3>
+                    </div>
+                    <p class="text-sm text-gray-600">The easiest method. Works in Webflow, WordPress, Framer, and raw HTML.</p>
+                </div>
+                <div class="lg:col-span-2">
+                    <div class="code-block p-6 rounded-2xl overflow-x-auto shadow-2xl">
+                        <code class="font-mono text-xs leading-relaxed">
+                            <span class="text-gray-500">&lt;!-- Just use it as an image source --&gt;</span><br>
+                            &lt;<span class="text-pink-400">img</span><br>
+                            &nbsp;&nbsp;<span class="text-blue-300">src</span>="<span class="text-green-300"><span class="dynamic-domain">https://iconflow.vercel.app</span>/api/render?q=google&color=red&size=24</span>"<br>
+                            &nbsp;&nbsp;<span class="text-blue-300">alt</span>="<span class="text-yellow-300">Google Logo</span>"<br>
+                            &nbsp;&nbsp;<span class="text-blue-300">width</span>="<span class="text-yellow-300">24</span>"<br>
+                            /&gt;
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-lg">code</span>
+                        </div>
+                        <h3 class="font-bold text-lg">React & Next.js</h3>
+                    </div>
+                    <p class="text-sm text-gray-600">Build a dynamic icon component that changes based on props.</p>
+                </div>
+                <div class="lg:col-span-2">
+                    <div class="code-block p-6 rounded-2xl overflow-x-auto shadow-2xl">
+                        <code class="font-mono text-xs leading-relaxed">
+                            <span class="text-purple-400">export const</span> Icon = ({ <span class="text-orange-300">name</span>, <span class="text-orange-300">color</span> }) => (<br>
+                            &nbsp;&nbsp;&lt;<span class="text-pink-400">img</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-300">src</span>={`<span class="dynamic-domain">https://iconflow.vercel.app</span>/api/render?q=${name}&color=${color}&size=24`}<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-300">className</span>="<span class="text-green-300">w-6 h-6</span>"<br>
+                            &nbsp;&nbsp;/&gt;<br>
+                            );<br><br>
+                            <span class="text-gray-500">// Usage: &lt;Icon name="github" color="black" /&gt;</span>
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-lg">css</span>
+                        </div>
+                        <h3 class="font-bold text-lg">CSS Backgrounds</h3>
+                    </div>
+                    <p class="text-sm text-gray-600">Perfect for pseudo-elements (::before) or custom buttons.</p>
+                </div>
+                <div class="lg:col-span-2">
+                    <div class="code-block p-6 rounded-2xl overflow-x-auto shadow-2xl">
+                        <code class="font-mono text-xs leading-relaxed">
+                            <span class="text-yellow-300">.btn-icon</span> {<br>
+                            &nbsp;&nbsp;<span class="text-blue-300">background-image</span>: <span class="text-purple-400">url</span>('<span class="text-green-300"><span class="dynamic-domain">https://iconflow.vercel.app</span>/api/render?q=menu&color=white&size=20</span>');<br>
+                            &nbsp;&nbsp;<span class="text-blue-300">background-repeat</span>: no-repeat;<br>
+                            &nbsp;&nbsp;<span class="text-blue-300">background-position</span>: center;<br>
+                            }
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                 <div class="lg:col-span-1">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 rounded-lg bg-green-100 text-green-600 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-lg">tune</span>
+                        </div>
+                        <h3 class="font-bold text-lg">API Parameters</h3>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <div class="border border-border-light rounded-xl overflow-hidden bg-white shadow-sm">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-gray-50 border-b border-border-light">
+                                <tr>
+                                    <th class="px-6 py-4 font-mono text-xs text-gray-500 uppercase">Key</th>
+                                    <th class="px-6 py-4 font-mono text-xs text-gray-500 uppercase">Example</th>
+                                    <th class="px-6 py-4 font-mono text-xs text-gray-500 uppercase">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-border-light">
+                                <tr>
+                                    <td class="px-6 py-4 font-mono font-bold">q</td>
+                                    <td class="px-6 py-4 text-gray-500 font-mono text-xs">rocket</td>
+                                    <td class="px-6 py-4 text-gray-600">Icon name or brand</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-mono font-bold">color</td>
+                                    <td class="px-6 py-4 text-gray-500 font-mono text-xs">FF0000</td>
+                                    <td class="px-6 py-4 text-gray-600">Hex code or name</td>
+                                </tr>
+                                 <tr>
+                                    <td class="px-6 py-4 font-mono font-bold">size</td>
+                                    <td class="px-6 py-4 text-gray-500 font-mono text-xs">48</td>
+                                    <td class="px-6 py-4 text-gray-600">Pixels (Integer)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+</main>
+
+<footer class="w-full border-t border-border-light bg-white py-10 mt-12">
+    <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
+        <p class="text-sm text-gray-500 font-medium">Powered by IconFlow</p>
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-subtle border border-border-light">
+            <span class="relative flex h-2.5 w-2.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+            </span>
+            <span class="text-xs font-mono font-medium text-primary">System Operational</span>
+        </div>
+    </div>
+</footer>
+
+<div id="donateModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 px-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative transform scale-95 transition-transform duration-300" id="donateModalContent">
+        <button onclick="closeDonateModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors bg-gray-50 hover:bg-gray-100 rounded-full p-1.5 flex items-center justify-center">
+            <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+        
+        <div class="flex flex-col items-center mb-6 mt-2">
+            <div class="w-12 h-12 bg-subtle border border-border-light rounded-xl flex items-center justify-center mb-4">
+                <span class="material-symbols-outlined text-2xl">favorite</span>
+            </div>
+            <h3 class="text-2xl font-bold text-primary mb-2 text-center tracking-tight">Support IconFlow</h3>
+            <p class="text-gray-500 text-sm text-center">Your support helps keep the API running fast and completely free.</p>
+        </div>
+        
+        <div class="space-y-4">
+            <div class="p-4 border border-border-light rounded-xl bg-gray-50 flex justify-between items-center group hover:border-gray-300 transition-colors">
+                <div>
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Binance Pay ID</p>
+                    <p class="font-mono text-primary font-medium text-base">992313441</p>
+                </div>
+                <button onclick="copyDonateText('992313441', this)" class="w-9 h-9 rounded-lg bg-white border border-border-light flex items-center justify-center text-gray-500 hover:text-black hover:border-gray-300 hover:shadow-sm transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-[18px]">content_copy</span>
+                </button>
+            </div>
+            
+            <div class="p-4 border border-border-light rounded-xl bg-gray-50 flex justify-between items-center group hover:border-gray-300 transition-colors">
+                <div>
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">UPI ID</p>
+                    <p class="font-mono text-primary font-medium text-sm sm:text-base break-all pr-2">sedniumdevz4@ptyes</p>
+                </div>
+                <button onclick="copyDonateText('sedniumdevz4@ptyes', this)" class="w-9 h-9 flex-shrink-0 rounded-lg bg-white border border-border-light flex items-center justify-center text-gray-500 hover:text-black hover:border-gray-300 hover:shadow-sm transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-[18px]">content_copy</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="mt-6 text-center">
+            <button onclick="closeDonateModal()" class="text-sm font-medium text-gray-500 hover:text-black transition-colors">Maybe Later</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- NEW: DONATE MODAL LOGIC ---
+    window.openDonateModal = () => {
+        const modal = document.getElementById('donateModal');
+        const content = document.getElementById('donateModalContent');
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        content.classList.remove('scale-95');
+        content.classList.add('scale-100');
+    };
+
+    window.closeDonateModal = () => {
+        const modal = document.getElementById('donateModal');
+        const content = document.getElementById('donateModalContent');
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        content.classList.remove('scale-100');
+        content.classList.add('scale-95');
+    };
+
+    window.copyDonateText = (text, btn) => {
+        navigator.clipboard.writeText(text).then(() => {
+            const icon = btn.querySelector('span');
+            const originalIcon = icon.innerText;
+            icon.innerText = 'check';
+            icon.classList.add('text-green-500');
+            setTimeout(() => {
+                icon.innerText = originalIcon;
+                icon.classList.remove('text-green-500');
+            }, 2000);
+        });
+    };
+
+    // Close modal if clicked outside the white box
+    document.getElementById('donateModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDonateModal();
+        }
+    });
+
+    // --- 1. GLOBAL HELPERS ---
+    window.setColor = (val) => { 
+        document.getElementById('colorTextInput').value = val; 
+        document.getElementById('colorTextInput').dispatchEvent(new Event('input')); 
+    };
+    
+    window.setFormat = (fmt) => {
+        document.getElementById('btnImgUrl').classList.toggle('active', fmt === 'url');
+        document.getElementById('btnSvgCode').classList.toggle('active', fmt === 'svg');
+        const input = document.getElementById('searchInput');
+        input.dataset.format = fmt; 
+        input.dispatchEvent(new Event('input'));
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- 2. UPDATE DOCS DOMAIN DYNAMICALLY ---
+        const currentDomain = window.location.origin;
+        document.querySelectorAll('.dynamic-domain').forEach(el => {
+            el.innerText = currentDomain;
+        });
+
+        const els = {
+            search: document.getElementById('searchInput'),
+            colorText: document.getElementById('colorTextInput'),
+            colorHex: document.getElementById('colorHexDisplay'),
+            slider: document.getElementById('sizeSlider'),
+            sizeDisplay: document.getElementById('sizeValueDisplay'),
+            previewContainer: document.getElementById('iconPreviewContainer'),
+            previewDim: document.getElementById('previewDimensions'),
+            codeContainer: document.getElementById('codeSnippetContent'),
+            copyBtn: document.getElementById('copyBtn')
+        };
+
+        // --- 3. SMOOTH TYPEWRITER ANIMATION (FIXED) ---
+        const placeholders = ["Search for a Logo...", "Search for 'developer'...", "Search for 'apple'...", "Search for 'menu'..."];
+        let phIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        
+        function typeEffect() {
+            const currentWord = placeholders[phIndex];
+            const speed = isDeleting ? 50 : 100;
+            
+            if (isDeleting) { charIndex--; } else { charIndex++; }
+            
+            els.search.setAttribute('placeholder', currentWord.substring(0, charIndex));
+            
+            if (!isDeleting && charIndex === currentWord.length) {
+                setTimeout(() => { isDeleting = true; typeEffect(); }, 2000);
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                phIndex = (phIndex + 1) % placeholders.length;
+                setTimeout(typeEffect, 500);
+            } else {
+                setTimeout(typeEffect, speed);
+            }
+        }
+        setTimeout(typeEffect, 1000);
+
+        // --- 4. FALLBACK ICONS ---
+        const brandIcons = {
+            'google': '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M21.35 11.1h-9.17v2.98h5.36c-.28 1.6-1.65 4.38-5.36 4.38-3.23 0-5.85-2.65-5.85-5.96s2.62-5.96 5.85-5.96c1.83 0 3.14.78 3.84 1.44l2.25-2.28C16.7 4.29 14.54 3.5 12.18 3.5c-5.18 0-9.38 4.2-9.38 9.38s4.2 9.38 9.38 9.38c5.4 0 8.98-3.8 8.98-9.14 0-.74-.08-1.42-.16-1.92z"/></svg>',
+            'github': '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02a9.56 9.56 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>',
+            'facebook': '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.17 6 13.54 6c1.14 0 2.32.2 2.32.2v2.55h-1.3c-1.25 0-1.63.77-1.63 1.56V12h2.87l-.46 3h-2.41v6.8c4.56-.93 8-4.96 8-9.8z"/></svg>',
+            'apple': '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.5 1.3 0 2.52.88 3.33.88.82 0 2.37-1.09 3.98-0.93 1.12.09 2.15.65 2.72 1.48-2.61 1.35-2.18 5.25.46 6.43-.54 1.57-1.35 3.12-2.6 4.75zM15 5.58c.67-1.15.54-2.73 0-3.58-.8 0-2.07.49-2.75 1.66-.58.98-.44 2.56.03 3.52.74.05 1.99-.5 2.72-1.6z"/></svg>',
+            'developer': 'code', 'dev': 'code', 'code': 'code',
+            'terminal': 'terminal', 'menu': 'menu', 'settings': 'settings'
+        };
+
+        const state = { query: 'google', color: '#000000', size: 64 };
+        let debounceTimer; // TIMER FOR DEBOUNCING
+
+        const updateUI = async () => {
+            const q = state.query.toLowerCase().trim();
+            const rawColor = state.color;
+            const format = els.search.dataset.format || 'url';
+            const cleanColor = rawColor.replace('#', '');
+            
+            // Build API URL
+            const apiUrl = `/api/render?q=${q}&color=${cleanColor}&size=${state.size}`;
+            
+            // Render logic
+            try {
+                const res = await fetch(apiUrl);
+                if(res.ok) {
+                    const svgText = await res.text();
+                    els.previewContainer.innerHTML = svgText;
+                    
+                    if (format === 'svg') {
+                         els.codeContainer.innerText = svgText;
+                    } else {
+                         // COLORFUL DYNAMIC URL
+                         const protocol = '<span class="text-blue-400">https://</span>';
+                         const domain = `<span class="text-gray-400">${window.location.host}/api/</span>`;
+                         const endpoint = '<span class="text-purple-400">render</span>';
+                         const paramQ = `<span class="text-gray-500">?q=</span><span class="text-green-400">${q}</span>`;
+                         const paramC = `<span class="text-gray-500">&color=</span><span class="text-orange-400">${cleanColor}</span>`;
+                         const paramS = `<span class="text-gray-500">&size=</span><span class="text-gray-300">${state.size}</span>`;
+                         
+                         els.codeContainer.innerHTML = `${protocol}${domain}${endpoint}${paramQ}${paramC}${paramS}`;
+                    }
+                } else { throw new Error('API not ready'); }
+            } catch(e) {
+                // FALLBACK
+                let renderContent = '';
+                if (brandIcons[q]) {
+                    if(brandIcons[q].startsWith('<svg')) { renderContent = brandIcons[q]; } 
+                    else { renderContent = `<span class="material-symbols-outlined" style="font-size: inherit;">${brandIcons[q]}</span>`; }
+                } else {
+                    renderContent = `<span class="material-symbols-outlined" style="font-size: inherit;">${q.split(' ').join('_')}</span>`;
+                }
+                els.previewContainer.innerHTML = renderContent;
+                
+                if (format === 'svg') {
+                     els.codeContainer.innerText = `<svg width="${state.size}" height="${state.size}" fill="${rawColor}">...</svg>`;
+                } else {
+                     const protocol = '<span class="text-blue-400">https://</span>';
+                     const domain = `<span class="text-gray-400">${window.location.host}/api/</span>`;
+                     const endpoint = '<span class="text-purple-400">render</span>';
+                     const paramQ = `<span class="text-gray-500">?q=</span><span class="text-green-400">${q}</span>`;
+                     const paramC = `<span class="text-gray-500">&color=</span><span class="text-orange-400">${cleanColor}</span>`;
+                     const paramS = `<span class="text-gray-500">&size=</span><span class="text-gray-300">${state.size}</span>`;
+                     els.codeContainer.innerHTML = `${protocol}${domain}${endpoint}${paramQ}${paramC}${paramS}`;
+                }
+            }
+
+            // DYNAMIC DIMENSIONS UPDATE
+            els.sizeDisplay.innerText = state.size + 'px';
+            const isBrand = brandIcons[q] && brandIcons[q].startsWith('<svg');
+            els.previewDim.innerText = `${state.size} x ${state.size} • ${isBrand ? 'Brand SVG' : 'Icon'}`;
+            
+            els.colorHex.innerText = rawColor.startsWith('#') ? rawColor.toUpperCase() : rawColor;
+            els.previewContainer.style.fontSize = state.size + 'px';
+            els.previewContainer.style.color = rawColor;
+        };
+
+        // Listeners with DEBOUNCE (300ms)
+        els.search.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                state.query = e.target.value || 'google';
+                updateUI();
+            }, 300);
+        });
+
+        els.colorText.addEventListener('input', (e) => { state.color = e.target.value; updateUI(); });
+        els.slider.addEventListener('input', (e) => { state.size = e.target.value; updateUI(); });
+        els.copyBtn.addEventListener('click', () => {
+            const textToCopy = els.codeContainer.innerText;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const original = els.copyBtn.innerHTML;
+                els.copyBtn.innerHTML = '<span class="material-symbols-outlined">check</span> Copied!';
+                setTimeout(() => els.copyBtn.innerHTML = original, 2000);
+            });
+        });
+
+        updateUI(); // Initial Load
+    });
+</script>
+
+</body>
+</html>
