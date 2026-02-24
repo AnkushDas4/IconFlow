@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Icon Library - IconFlow</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0a0a0a",
+                        "border-light": "#e5e5e5",
+                        "subtle": "#f5f5f5",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"],
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none;  scrollbar-width: none; }
+        /* Anchor offset for sticky header */
+        section { scroll-margin-top: 100px; }
+    </style>
+</head>
+<body class="bg-subtle text-primary antialiased min-h-screen flex flex-col font-display">
+
+<header class="w-full border-b border-border-light bg-white sticky top-0 z-50 backdrop-blur-md bg-white/90 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+        <a href="index.html" class="flex items-center gap-2 flex-shrink-0 cursor-pointer">
+            <span class="material-symbols-outlined text-2xl">grid_view</span>
+            <h1 class="font-mono font-bold text-lg tracking-tight">IconFlow</h1>
+        </a>
+        <nav class="flex items-center gap-3 md:gap-8 overflow-x-auto no-scrollbar ml-4">
+            <a class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap" href="icons.html">Icon Library</a>
+            <a class="text-sm font-medium hover:text-black/70 transition-colors whitespace-nowrap" href="index.html#docs">Developer Guide</a>
+            <a class="text-sm font-medium hover:text-black/70 transition-colors whitespace-nowrap" href="index.html#donate">Donate</a>
+        </nav>
+    </div>
+</header>
+
+<main class="flex-grow w-full px-6 py-12 md:py-16 max-w-7xl mx-auto relative">
+    
+    <div class="mb-8">
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-primary mb-3">Supported Icons</h2>
+        <p class="text-gray-500 text-lg max-w-2xl">IconFlow automatically connects to over 10,000+ icons. Here is a cheat sheet of the most popular keywords you can use.</p>
+    </div>
+
+    <div class="flex flex-wrap gap-2 mb-12 border-b border-border-light pb-8">
+        <a href="#brands" class="px-4 py-2 bg-white border border-border-light rounded-full text-sm font-medium hover:border-gray-400 transition-all shadow-sm">🔥 Brands</a>
+        <a href="#social" class="px-4 py-2 bg-white border border-border-light rounded-full text-sm font-medium hover:border-gray-400 transition-all shadow-sm">🌐 Social</a>
+        <a href="#ui" class="px-4 py-2 bg-white border border-border-light rounded-full text-sm font-medium hover:border-gray-400 transition-all shadow-sm">📱 UI</a>
+        <a href="#dev" class="px-4 py-2 bg-white border border-border-light rounded-full text-sm font-medium hover:border-gray-400 transition-all shadow-sm">💻 Developer</a>
+        <a href="#finance" class="px-4 py-2 bg-white border border-border-light rounded-full text-sm font-medium hover:border-gray-400 transition-all shadow-sm">💳 Finance</a>
+        <a href="#media" class="px-4 py-2 bg-white border border-border-light rounded-full text-sm font-medium hover:border-gray-400 transition-all shadow-sm">📸 Media</a>
+        <a href="#files" class="px-4 py-2 bg-white border border-border-light rounded-full text-sm font-medium hover:border-gray-400 transition-all shadow-sm">📁 Files</a>
+        <a href="#comm" class="px-4 py-2 bg-white border border-border-light rounded-full text-sm font-medium hover:border-gray-400 transition-all shadow-sm">💬 Comm</a>
+        <a href="#actions" class="px-4 py-2 bg-white border border-border-light rounded-full text-sm font-medium hover:border-gray-400 transition-all shadow-sm">🛠️ Actions</a>
+    </div>
+
+    <section id="brands" class="mb-16">
+        <h3 class="text-xl font-bold flex items-center gap-2 mb-6">
+            <span class="text-orange-500 text-2xl">🔥</span> Hot Brands
+        </h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 brand-grid contents-grid"></div>
+    </section>
+
+    <section id="social" class="mb-16">
+        <h3 class="text-xl font-bold flex items-center gap-2 mb-6 text-pink-500">
+            <span class="material-symbols-outlined">public</span> Social & Web
+        </h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 social-grid contents-grid"></div>
+    </section>
+
+    <section id="ui" class="mb-16">
+        <h3 class="text-xl font-bold flex items-center gap-2 mb-6 text-blue-600">
+            <span class="material-symbols-outlined">touch_app</span> UI & Navigation
+        </h3>
+        <div class="p-4 bg-blue-50 border border-blue-100 rounded-xl mb-6 flex items-start gap-3">
+            <span class="material-symbols-outlined text-blue-600 mt-0.5">lightbulb</span>
+            <p class="text-sm text-blue-800 leading-relaxed">
+                <strong>Pro Tip:</strong> For directional arrows, use precise words like <code class="bg-white/60 font-mono text-xs px-1.5 py-0.5 rounded border border-blue-200">arrow_back</code> or <code class="bg-white/60 font-mono text-xs px-1.5 py-0.5 rounded border border-blue-200">arrow_forward</code>.
+            </p>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 ui-grid contents-grid"></div>
+    </section>
+
+    <section id="dev" class="mb-16">
+        <h3 class="text-xl font-bold flex items-center gap-2 mb-6 text-purple-600">
+            <span class="material-symbols-outlined">terminal</span> Developer Tools
+        </h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 dev-grid contents-grid"></div>
+    </section>
+
+    <section id="finance" class="mb-16">
+        <h3 class="text-xl font-bold flex items-center gap-2 mb-6 text-emerald-600">
+            <span class="material-symbols-outlined">payments</span> Commerce & Finance
+        </h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 finance-grid contents-grid"></div>
+    </section>
+
+    <section id="media" class="mb-16">
+        <h3 class="text-xl font-bold flex items-center gap-2 mb-6 text-red-500">
+            <span class="material-symbols-outlined">play_circle</span> Media & Audio
+        </h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 media-grid contents-grid"></div>
+    </section>
+    
+    <section id="files" class="mb-16">
+        <h3 class="text-xl font-bold flex items-center gap-2 mb-6 text-amber-600">
+            <span class="material-symbols-outlined">folder</span> Files & Folders
+        </h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 file-grid contents-grid"></div>
+    </section>
+
+    <section id="comm" class="mb-16">
+        <h3 class="text-xl font-bold flex items-center gap-2 mb-6 text-indigo-500">
+            <span class="material-symbols-outlined">forum</span> Communication
+        </h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 comm-grid contents-grid"></div>
+    </section>
+
+    <section id="actions" class="mb-16">
+        <h3 class="text-xl font-bold flex items-center gap-2 mb-6 text-slate-700">
+            <span class="material-symbols-outlined">build</span> Actions & Tools
+        </h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 action-grid contents-grid"></div>
+    </section>
+
+</main>
+
+<button id="scrollToTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-6 right-6 md:bottom-10 md:right-10 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 opacity-0 pointer-events-none hover:scale-110 hover:bg-gray-800 z-50">
+    <span class="material-symbols-outlined">arrow_upward</span>
+</button>
+
+<footer class="w-full border-t border-border-light bg-white py-10 mt-12">
+    <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
+        <p class="text-sm text-gray-500 font-medium">Powered by IconFlow</p>
+    </div>
+</footer>
+
+<script>
+    // --- SCROLL TO TOP LOGIC ---
+    const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+    
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 400) {
+            scrollToTopBtn.classList.remove('opacity-0', 'pointer-events-none');
+            scrollToTopBtn.classList.add('opacity-100');
+        } else {
+            scrollToTopBtn.classList.remove('opacity-100');
+            scrollToTopBtn.classList.add('opacity-0', 'pointer-events-none');
+        }
+    });
+
+    // --- ICON DATABASES ---
+    const brands = ['google', 'github', 'facebook', 'apple', 'amazon', 'microsoft', 'netflix', 'spotify'];
+    const social = ['twitter', 'instagram', 'linkedin', 'youtube', 'tiktok', 'discord', 'reddit', 'whatsapp', 'telegram', 'snapchat', 'pinterest', 'twitch'];
+    
+    // Using Material standard names so they render properly in font fallback
+    const uiIcons = ['menu', 'settings', 'search', 'home', 'arrow_back', 'arrow_forward', 'arrow_upward', 'arrow_downward', 'close', 'check', 'info', 'favorite', 'favorite_border', 'star', 'star_border', 'done', 'done_all', 'more_vert', 'more_horiz', 'refresh', 'sync', 'login', 'logout', 'help'];
+    const devIcons = ['developer_mode', 'code', 'terminal', 'bug_report', 'database', 'cloud', 'memory', 'api', 'dns', 'integration_instructions', 'webhook', 'data_object', 'extension', 'keyboard_command_key'];
+    const finance = ['shopping_cart', 'credit_card', 'payments', 'account_balance', 'store', 'receipt', 'wallet', 'currency_exchange', 'price_change', 'shopping_bag', 'paid', 'sell', 'monetization_on'];
+    const media = ['play_arrow', 'pause', 'stop', 'volume_up', 'volume_off', 'volume_down', 'camera_alt', 'mic', 'mic_off', 'headset', 'smartphone', 'laptop', 'tv', 'radio', 'movie', 'music_note', 'image', 'photo_camera', 'videocam'];
+    const files = ['folder', 'folder_open', 'description', 'insert_drive_file', 'attachment', 'download', 'upload', 'cloud_download', 'cloud_upload', 'save', 'file_copy', 'note_add', 'create_new_folder'];
+    const comm = ['mail', 'chat', 'forum', 'call', 'notifications', 'notifications_active', 'send', 'drafts', 'mark_email_unread', 'contact_mail', 'rss_feed', 'speaker_notes'];
+    const actions = ['build', 'edit', 'delete', 'delete_outline', 'share', 'print', 'lock', 'lock_open', 'visibility', 'visibility_off', 'thumb_up', 'thumb_down', 'history', 'backspace', 'find_replace', 'zoom_in', 'zoom_out'];
+
+    // Render Function
+    function renderCard(name, isMaterial = false) {
+        // We use the actual API url for the image. If API fails, onerror uses the font fallback.
+        // For brands/social, we just fallback to a generic circle if API isn't live locally yet.
+        const fallbackText = isMaterial ? name : 'circle'; 
+        
+        return `
+        <a href="index.html" class="flex flex-col items-center justify-center p-6 bg-white border border-border-light rounded-2xl hover:border-black hover:shadow-lg transition-all cursor-pointer group shadow-sm">
+            <img src="/api/render?q=${name}&size=32" alt="${name}" class="w-8 h-8 mb-4 group-hover:scale-125 transition-transform duration-300" onerror="this.outerHTML='<span class=\\'material-symbols-outlined text-3xl mb-4 group-hover:scale-125 transition-transform duration-300\\'>${fallbackText}</span>'">
+            <span class="text-xs font-mono text-gray-500 text-center w-full truncate px-2" title="${name}">${name}</span>
+        </a>
+        `;
+    }
+
+    // Inject into DOM
+    document.querySelector('.brand-grid').innerHTML = brands.map(b => renderCard(b, false)).join('');
+    document.querySelector('.social-grid').innerHTML = social.map(b => renderCard(b, false)).join('');
+    document.querySelector('.ui-grid').innerHTML = uiIcons.map(i => renderCard(i, true)).join('');
+    document.querySelector('.dev-grid').innerHTML = devIcons.map(i => renderCard(i, true)).join('');
+    document.querySelector('.finance-grid').innerHTML = finance.map(i => renderCard(i, true)).join('');
+    document.querySelector('.media-grid').innerHTML = media.map(i => renderCard(i, true)).join('');
+    document.querySelector('.file-grid').innerHTML = files.map(i => renderCard(i, true)).join('');
+    document.querySelector('.comm-grid').innerHTML = comm.map(i => renderCard(i, true)).join('');
+    document.querySelector('.action-grid').innerHTML = actions.map(i => renderCard(i, true)).join('');
+</script>
+
+</body>
+          </html>
+  
