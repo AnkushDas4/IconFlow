@@ -89,5 +89,5 @@ Open http://localhost:3000 to view the generator.
 
 ### 🤝 Support & Contributing
 If you found this project helpful, consider supporting the development!
-# Binance Pay:- 992313441
-# Upi:- sedniumdevz4@ptyes
+#### Binance Pay:- 992313441
+#### Upi:- sedniumdevz4@ptyes
