@@ -167,10 +167,9 @@
     });
 
     // --- ICON DATABASES ---
-    const brands = ['google', 'github', 'facebook', 'apple', 'amazon', 'microsoft', 'netflix', 'spotify'];
-    const social = ['twitter', 'instagram', 'linkedin', 'youtube', 'tiktok', 'discord', 'reddit', 'whatsapp', 'telegram', 'snapchat', 'pinterest', 'twitch'];
+    const brands = ['google', 'github', 'facebook', 'apple', 'tiktok', 'amazon', 'microsoft', 'netflix', 'spotify'];
+    const social = ['twitter', 'instagram', 'linkedin', 'youtube', 'discord', 'reddit', 'whatsapp', 'telegram', 'snapchat', 'pinterest', 'twitch'];
     
-    // Using Material standard names so they render properly in font fallback
     const uiIcons = ['menu', 'settings', 'search', 'home', 'arrow_back', 'arrow_forward', 'arrow_upward', 'arrow_downward', 'close', 'check', 'info', 'favorite', 'favorite_border', 'star', 'star_border', 'done', 'done_all', 'more_vert', 'more_horiz', 'refresh', 'sync', 'login', 'logout', 'help'];
     const devIcons = ['developer_mode', 'code', 'terminal', 'bug_report', 'database', 'cloud', 'memory', 'api', 'dns', 'integration_instructions', 'webhook', 'data_object', 'extension', 'keyboard_command_key'];
     const finance = ['shopping_cart', 'credit_card', 'payments', 'account_balance', 'store', 'receipt', 'wallet', 'currency_exchange', 'price_change', 'shopping_bag', 'paid', 'sell', 'monetization_on'];
@@ -179,15 +178,31 @@
     const comm = ['mail', 'chat', 'forum', 'call', 'notifications', 'notifications_active', 'send', 'drafts', 'mark_email_unread', 'contact_mail', 'rss_feed', 'speaker_notes'];
     const actions = ['build', 'edit', 'delete', 'delete_outline', 'share', 'print', 'lock', 'lock_open', 'visibility', 'visibility_off', 'thumb_up', 'thumb_down', 'history', 'backspace', 'find_replace', 'zoom_in', 'zoom_out'];
 
-    // Render Function
+    // Local Fallback library for brands so they always render in the library
+    const brandSVGs = {
+        'google': '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M21.35 11.1h-9.17v2.98h5.36c-.28 1.6-1.65 4.38-5.36 4.38-3.23 0-5.85-2.65-5.85-5.96s2.62-5.96 5.85-5.96c1.83 0 3.14.78 3.84 1.44l2.25-2.28C16.7 4.29 14.54 3.5 12.18 3.5c-5.18 0-9.38 4.2-9.38 9.38s4.2 9.38 9.38 9.38c5.4 0 8.98-3.8 8.98-9.14 0-.74-.08-1.42-.16-1.92z"/></svg>',
+        'github': '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02a9.56 9.56 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>',
+        'facebook': '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.17 6 13.54 6c1.14 0 2.32.2 2.32.2v2.55h-1.3c-1.25 0-1.63.77-1.63 1.56V12h2.87l-.46 3h-2.41v6.8c4.56-.93 8-4.96 8-9.8z"/></svg>',
+        'apple': '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.5 1.3 0 2.52.88 3.33.88.82 0 2.37-1.09 3.98-0.93 1.12.09 2.15.65 2.72 1.48-2.61 1.35-2.18 5.25.46 6.43-.54 1.57-1.35 3.12-2.6 4.75zM15 5.58c.67-1.15.54-2.73 0-3.58-.8 0-2.07.49-2.75 1.66-.58.98-.44 2.56.03 3.52.74.05 1.99-.5 2.72-1.6z"/></svg>',
+        'tiktok': '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 2.78-1.15 5.54-3.33 7.37-1.94 1.62-4.62 2.26-7.14 2.03-2.53-.23-4.85-1.46-6.42-3.36-1.52-1.84-2.14-4.27-1.78-6.62.33-2.22 1.56-4.22 3.37-5.5 1.83-1.31 4.2-1.8 6.46-1.46v4.14c-2.48-.37-5.04.88-6.04 3.14-.94 2.05-.28 4.67 1.57 5.92 1.72 1.19 4.18 1.12 5.85-.14 1.68-1.25 2.53-3.37 2.4-5.46.03-5.63-.03-11.26.04-16.89z"/></svg>'
+    };
+
+    // Render Function (Fixed local rendering & dynamic URL parameter)
     function renderCard(name, isMaterial = false) {
-        // We use the actual API url for the image. If API fails, onerror uses the font fallback.
-        // For brands/social, we just fallback to a generic circle if API isn't live locally yet.
-        const fallbackText = isMaterial ? name : 'circle'; 
+        let iconHtml = '';
         
+        // If it's a known brand, inject SVG directly so it never fails locally
+        if (brandSVGs[name]) {
+            iconHtml = `<div class="w-8 h-8 mb-4 flex items-center justify-center text-3xl group-hover:scale-125 transition-transform duration-300 text-primary">${brandSVGs[name]}</div>`;
+        } else {
+            // Otherwise, render Material Icon font
+            iconHtml = `<span class="material-symbols-outlined text-3xl mb-4 group-hover:scale-125 transition-transform duration-300 text-primary">${name}</span>`;
+        }
+        
+        // Use ?icon=name so index.html loads it instantly
         return `
-        <a href="index.html" class="flex flex-col items-center justify-center p-6 bg-white border border-border-light rounded-2xl hover:border-black hover:shadow-lg transition-all cursor-pointer group shadow-sm">
-            <img src="/api/render?q=${name}&size=32" alt="${name}" class="w-8 h-8 mb-4 group-hover:scale-125 transition-transform duration-300" onerror="this.outerHTML='<span class=\\'material-symbols-outlined text-3xl mb-4 group-hover:scale-125 transition-transform duration-300\\'>${fallbackText}</span>'">
+        <a href="index.html?icon=${name}" class="flex flex-col items-center justify-center p-6 bg-white border border-border-light rounded-2xl hover:border-black hover:shadow-lg transition-all cursor-pointer group shadow-sm">
+            ${iconHtml}
             <span class="text-xs font-mono text-gray-500 text-center w-full truncate px-2" title="${name}">${name}</span>
         </a>
         `;
@@ -204,7 +219,5 @@
     document.querySelector('.comm-grid').innerHTML = comm.map(i => renderCard(i, true)).join('');
     document.querySelector('.action-grid').innerHTML = actions.map(i => renderCard(i, true)).join('');
 </script>
-
 </body>
-          </html>
-  
+</html>
