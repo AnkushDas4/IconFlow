@@ -61,15 +61,24 @@ export default async function handler(request) {
     // --- PROCESSING: Inject Size and Color ---
     const cleanColor = (color.match(/^[0-9a-fA-F]{3,6}$/)) ? `#${color}` : color;
     
-    // 1. Remove existing width/height
-    svgRaw = svgRaw.replace(/width=".*?"/, '').replace(/height=".*?"/, '');
+    // 1. Remove existing width/height SAFELY (using global replacement)
+    svgRaw = svgRaw.replace(/width="[^"]*"/g, '').replace(/height="[^"]*"/g, '');
     
     // 2. Add new width/height
     svgRaw = svgRaw.replace('<svg', `<svg width="${size}" height="${size}"`);
 
-    // 3. Inject Color (Replace 'currentColor' and force fill)
-    svgRaw = svgRaw.replace(/currentColor/g, cleanColor);
-    if (!svgRaw.includes('fill="')) {
+    // 3. Inject Color (Robust overrides)
+    // Replace explicit "currentColor" variables
+    svgRaw = svgRaw.replace(/currentColor/gi, cleanColor);
+    
+    // Overwrite explicit hardcoded fills to enforce user's color (except 'none')
+    svgRaw = svgRaw.replace(/fill="(?!(?:none))[^"]+"/gi, `fill="${cleanColor}"`);
+    
+    // Overwrite explicit strokes to enforce user's color (except 'none')
+    svgRaw = svgRaw.replace(/stroke="(?!(?:none))[^"]+"/gi, `stroke="${cleanColor}"`);
+    
+    // If the SVG path had no fill or stroke attributes at all (common in simple-icons), slap the fill on the root <svg> tag
+    if (!svgRaw.includes('fill=')) {
         svgRaw = svgRaw.replace('<svg', `<svg fill="${cleanColor}"`);
     }
 
