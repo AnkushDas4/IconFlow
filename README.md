@@ -66,7 +66,8 @@ IconFlow is split into a frontend generator and a backend edge function.
 iconflow/
 ├── api/
 │   └── index.js      # The API Edge Function (Fetches & generates SVGs)
-├── index.html        # The Frontend UI (Tailwind CSS + Vanilla JS)
+├── index.html        # The Frontend UI (Landing page & API Generator)
+├── library.html      # The Icon Library Explorer UI
 ├── package.json      # Dependencies & Scripts
 └── vercel.json       # Vercel Routing Configuration
 ```
