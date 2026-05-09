@@ -28,19 +28,20 @@ export default async function handler(request) {
     } 
     // --- STRATEGY 2: Fetch from Public Iconify Network ---
     else {
-        // Map simple names to Iconify IDs
-        const mapping = {
-            'menu': 'mdi:menu',
-            'settings': 'mdi:cog',
-            'rocket': 'mdi:rocket-launch',
-            'user': 'mdi:account',
-            'check': 'mdi:check-circle',
-            'dev': 'mdi:code-tags',
-            'code': 'mdi:code-tags'
-        };
+        let iconID = q;
         
-        // If query has a colon (fa:home), use it. Else check map, else default to mdi.
-        const iconID = mapping[q] || (q.includes(':') ? q : `mdi:${q}`);
+        // Smart Routing: If no strict prefix is provided, auto-assign the correct icon family
+        if (!q.includes(':')) {
+            const brands = ['github', 'google', 'apple', 'microsoft', 'amazon', 'meta', 'twitter', 'linkedin', 'youtube', 'netflix', 'spotify', 'discord', 'slack', 'figma', 'notion', 'vercel', 'docker', 'kubernetes', 'android', 'windows', 'facebook'];
+            
+            if (brands.includes(q)) {
+                iconID = `simple-icons:${q}`;
+            } else {
+                // Default to material-symbols and convert underscores to hyphens dynamically
+                iconID = `material-symbols:${q.replace(/_/g, '-')}`;
+            }
+        }
+        
         const [set, name] = iconID.split(':');
         
         try {
@@ -80,4 +81,4 @@ export default async function handler(request) {
             'Access-Control-Allow-Origin': '*'
         }
     });
-      }
+}
