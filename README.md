@@ -70,24 +70,3 @@ iconflow/
 ├── package.json      # Dependencies & Scripts
 └── vercel.json       # Vercel Routing Configuration
 ```
-### 🌩 Deployment (Vercel)
-This project is optimized for 1-click deployment on Vercel.
-1.Clone or Download this repository.
-2. Ensure you have the Vercel CLI installed, or link the repo to your Vercel dashboard.
-3. The vercel.json file automatically routes all requests to /api/render to the backend function, while serving index.html on the root /.
-4. Deploy:
-```bash
-vercel --prod
-```
-### Running Locally
-To test the API and frontend together on your local machine:
-```bash
-npm install -g vercel
-vercel dev
-```
-Open http://localhost:3000 to view the generator.
-
-### 🤝 Support & Contributing
-If you found this project helpful, consider supporting the development!
-#### Binance Pay:- 992313441
-#### Upi:- sedniumdevz4@ptyes
