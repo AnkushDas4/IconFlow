@@ -1,6 +1,43 @@
 {
+  "version": 2,
+
+  "functions": {
+    "api/index.js": {
+      "runtime": "nodejs20.x"
+    }
+  },
+
   "rewrites": [
-    { "source": "/api/render", "destination": "/api/index.js" }
-    { "source": "/docs", "destination": "/docs.html" }
-  ]
+    {
+      "source": "/docs",
+      "destination": "/docs.html"
+    },
+    {
+      "source": "/library",
+      "destination": "/library.html"
+    },
+    {
+      "source": "/api/render",
+      "destination": "/api/index.js"
+    }
+  ],
+
+  "headers": [
+    {
+      "source": "/api/render",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, immutable"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
+  ],
+
+  "cleanUrls": true,
+  "trailingSlash": false
 }
