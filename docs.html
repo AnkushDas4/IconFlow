@@ -3,25 +3,25 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Sednicon — Headless Icon API | Free SVG Icons via URL</title>
-<meta name="description" content="Sednicon is a free, headless icon API serving 200,000+ SVG icons and brand logos via a single URL. Edge-deployed on Vercel for sub-50ms latency. No npm install, no API key — works in HTML, React, Vue, and Webflow."/>
-<meta name="keywords" content="icon API, SVG icon API, free icons, headless icons, icon CDN, brand logos API, dynamic SVG, icon generator, Sednicon"/>
+<title>Documentation — Sednicon API Reference</title>
+<meta name="description" content="Full developer documentation for the Sednicon icon API: HTML, React, Vue, and CSS integration examples, plus the complete /api/render parameter reference."/>
+<meta name="keywords" content="Sednicon docs, icon API documentation, SVG icon API reference, render endpoint parameters"/>
 <meta name="author" content="Sednium"/>
-<link rel="canonical" href="https://sednicon.sednium.com/"/>
+<link rel="canonical" href="https://sednicon.sednium.com/docs.html"/>
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://sednicon.sednium.com/"/>
-<meta property="og:title" content="Sednicon — Headless Icon API"/>
-<meta property="og:description" content="One URL, every icon. 200,000+ SVG icons and brand logos served instantly via a single API endpoint. Free, fast, and edge-deployed."/>
+<meta property="og:url" content="https://sednicon.sednium.com/docs.html"/>
+<meta property="og:title" content="Documentation — Sednicon API"/>
+<meta property="og:description" content="Full developer documentation for the Sednicon icon API: HTML, React, Vue, and CSS integration examples, plus the complete API parameter reference."/>
 <meta property="og:image" content="https://sednicon.sednium.com/og-image.png"/>
 <meta property="og:site_name" content="Sednicon"/>
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:url" content="https://sednicon.sednium.com/"/>
-<meta name="twitter:title" content="Sednicon — Headless Icon API"/>
-<meta name="twitter:description" content="One URL, every icon. 200,000+ SVG icons and brand logos served instantly via a single API endpoint. Free, fast, and edge-deployed."/>
+<meta name="twitter:url" content="https://sednicon.sednium.com/docs.html"/>
+<meta name="twitter:title" content="Documentation — Sednicon API"/>
+<meta name="twitter:description" content="Full developer documentation for the Sednicon icon API: HTML, React, Vue, and CSS integration examples, plus the complete API parameter reference."/>
 <meta name="twitter:image" content="https://sednicon.sednium.com/og-image.png"/>
 
 <!-- Favicon -->
@@ -662,6 +662,10 @@
     border-radius: 12px;
     overflow: hidden;
   }
+  .framework-grid { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 700px) {
+    .features-grid.framework-grid { grid-template-columns: repeat(2, 1fr); }
+  }
   .feature-card {
     padding: 40px 36px;
     background: var(--bg);
@@ -932,6 +936,7 @@
     .docs-nav { display: none; }
     footer { padding: 32px 24px; flex-direction: column; gap: 16px; text-align: center; }
     .divider-section { padding: 20px 24px; }
+    .code-block pre { font-size: 11px; padding: 16px; }
 
     /* Responsive params table: stack as cards on narrow screens */
     .params-table thead { display: none; }
@@ -978,7 +983,7 @@
   </a>
   <ul class="nav-links">
     <li><a href="library.html">Icon Library</a></li>
-    <li><a href="docs.html">Docs</a></li>
+    <li><a href="docs.html" style="color:var(--text);">Docs</a></li>
     <li><button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
       <span class="material-icons icon-light">dark_mode</span>
       <span class="material-icons icon-dark">light_mode</span>
@@ -986,165 +991,294 @@
   </ul>
 </nav>
 
-<section class="hero">
-  <div class="hero-grid"></div>
-  <div class="hero-glow"></div>
-  <div class="hero-glow-2"></div>
-
-  <div class="hero-left">
-    <div class="hero-eyebrow">Headless Icon API</div>
-    <h1 class="hero-title">
-      One URL.<br>
-      <em>Every</em> Icon.<br>
-      <span class="accent">Zero Setup.</span>
-    </h1>
-    <p class="hero-desc">
-      Brand logos, Material icons, and UI elements — all served as crisp SVGs via a single API endpoint. Drop it anywhere.
-    </p>
-    <div class="hero-actions">
-      <a href="#docs" class="btn-primary">
-        <span class="material-icons" style="font-size:16px">code</span>
-        Start Building
-      </a>
-      <a href="library.html" class="btn-ghost">
-        <span class="material-icons" style="font-size:16px">grid_view</span>
-        Browse Icons
-      </a>
-    </div>
-    <div class="hero-stats">
-      <div>
-        <div class="hero-stat-value">200k+</div>
-        <div class="hero-stat-label">Icons</div>
-      </div>
-      <div>
-        <div class="hero-stat-value">&lt;50ms</div>
-        <div class="hero-stat-label">Latency</div>
-      </div>
-      <div>
-        <div class="hero-stat-value">Free</div>
-        <div class="hero-stat-label">Forever</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="hero-right">
-    <div class="generator-card">
-      <div class="card-header">
-        <div class="card-dots">
-          <div class="card-dot"></div>
-          <div class="card-dot"></div>
-          <div class="card-dot"></div>
-        </div>
-        <div style="display:flex; align-items:center; gap:12px;">
-          <span class="card-title-small">Live Generator</span>
-          <button class="reset-btn" id="reset-generator" aria-label="Reset to defaults">
-            <span class="material-icons">restart_alt</span> Reset
-          </button>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="preview-area">
-          <img id="preview-icon" src="" alt="icon preview"/>
-          <div class="preview-dims" id="preview-dims">64 × 64 · SVG</div>
-        </div>
-
-        <div class="field-group">
-          <div class="field full">
-            <label>Icon Name</label>
-            <input type="text" id="q-input" value="rocket" placeholder="google, github, menu…" autocomplete="off"/>
-          </div>
-          <div class="field">
-            <label>Color</label>
-            <div class="color-row">
-              <input type="text" id="color-text" value="#000000"/>
-              <input type="color" id="color-picker" value="#000000"/>
-            </div>
-          </div>
-          <div class="field">
-            <label>Size (px)</label>
-            <input type="number" id="size-input" value="64" min="8" max="512"/>
-          </div>
-        </div>
-
-        <div class="format-tabs" id="format-tabs">
-          <div class="format-tab active" data-fmt="url">IMG URL</div>
-          <div class="format-tab" data-fmt="html">HTML</div>
-          <div class="format-tab" data-fmt="css">CSS</div>
-          <div class="format-tab" data-fmt="react">React</div>
-          <div class="format-tab" data-fmt="vue">Vue</div>
-        </div>
-
-        <div class="output-box" id="output-box"></div>
-
-        <button class="copy-btn" id="copy-btn">
-          <span class="material-icons">content_copy</span>
-          Copy to Clipboard
-        </button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="divider-section">
-  <div class="ticker-track" id="ticker"></div>
-</div>
-
-<section class="features">
-  <div class="section-label">Why Sednicon</div>
-  <h2 class="section-title">Built for <em>speed</em><br>& simplicity.</h2>
-  <div class="features-grid">
-    <div class="feature-card">
-      <div class="feature-num">01</div>
-      <div class="feature-icon"><span class="material-icons">bolt</span></div>
-      <div class="feature-title">Edge-Deployed</div>
-      <p class="feature-desc">Runs on Vercel Edge Functions for sub-50ms latency across every continent. No cold starts.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-num">02</div>
-      <div class="feature-icon"><span class="material-icons">palette</span></div>
-      <div class="feature-title">Any Color, Any Size</div>
-      <p class="feature-desc">Pass a hex code or color name directly in the URL. Icons render pixel-perfectly at any size from 16 to 512.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-num">03</div>
-      <div class="feature-icon"><span class="material-icons">code</span></div>
-      <div class="feature-title">Zero Installation</div>
-      <p class="feature-desc">No npm packages, no config files. Works as a plain &lt;img&gt; src in any framework — HTML, React, Vue, Webflow.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-num">04</div>
-      <div class="feature-icon"><span class="material-icons">auto_awesome</span></div>
-      <div class="feature-title">Smart Fallbacks</div>
-      <p class="feature-desc">High-fidelity brand SVGs for top logos, then seamless routing to the 200,000+ Iconify network for everything else.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-num">05</div>
-      <div class="feature-icon"><span class="material-icons">tune</span></div>
-      <div class="feature-title">Multiple Formats</div>
-      <p class="feature-desc">Use as an &lt;img&gt; source, CSS background-image, inline SVG code, or React component prop. One API, all workflows.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-num">06</div>
-      <div class="feature-icon"><span class="material-icons">lock_open</span></div>
-      <div class="feature-title">Completely Free</div>
-      <p class="feature-desc">No API keys, no rate limits for normal use, no credit card. Open-source and built to stay free forever.</p>
-    </div>
-  </div>
-</section>
-
-<section id="docs" style="text-align:center;">
-  <div class="section-label">Developer Manual</div>
-  <h2 class="section-title">Full docs,<br><em>one click away.</em></h2>
-  <p style="max-width:520px; margin:20px auto 0; color:var(--text-muted); font-size:15px; line-height:1.7;">
-    HTML, React, Vue, CSS examples, the complete API reference, error handling, and more — all in the Sednicon documentation.
+<section id="docs" style="padding-top:160px;">
+  <div class="section-label">Documentation</div>
+  <h2 class="section-title">Sednicon<br><em>API Reference.</em></h2>
+  <p style="max-width:640px; color:var(--text-muted); margin-top:16px; font-size:15px; line-height:1.7;">
+    Sednicon is a lightweight icon rendering API that lets developers generate customizable icons instantly using simple URLs. No installation. No dependencies. Just a URL.
   </p>
-  <div style="margin-top:36px;">
-    <a href="docs.html" class="btn-primary" style="display:inline-flex;">
-      <span class="material-icons">menu_book</span> View Documentation
+
+  <div class="code-block" style="max-width:760px; margin-top:32px;">
+    <div class="code-block-header">
+      <span class="code-lang">HTML</span>
+      <button class="code-copy" onclick="copyCode(this)"><span class="material-icons">content_copy</span> Copy</button>
+    </div>
+    <pre><span class="token-tag">&lt;img</span> <span class="token-key">src</span>=<span class="token-string">"https://sednicon.sednium.com/api/render?q=rocket&amp;color=000000&amp;size=64"</span> <span class="token-key">alt</span>=<span class="token-string">"Rocket Icon"</span> <span class="token-tag">/&gt;</span></pre>
+  </div>
+
+  <div class="docs-layout" style="margin-top:64px;">
+    <nav class="docs-nav">
+      <div class="docs-nav-item active" data-target="features-section"><span class="material-icons">star</span> Features</div>
+      <div class="docs-nav-item" data-target="quickstart-section"><span class="material-icons">bolt</span> Quick Start</div>
+      <div class="docs-nav-item" data-target="api-section"><span class="material-icons">tune</span> API Reference</div>
+      <div class="docs-nav-item" data-target="html-section"><span class="material-icons">html</span> HTML</div>
+      <div class="docs-nav-item" data-target="css-section"><span class="material-icons">brush</span> CSS</div>
+      <div class="docs-nav-item" data-target="react-section"><span class="material-icons">code</span> React</div>
+      <div class="docs-nav-item" data-target="vue-section"><span class="material-icons">layers</span> Vue</div>
+      <div class="docs-nav-item" data-target="frameworks-section"><span class="material-icons">widgets</span> Frameworks</div>
+      <div class="docs-nav-item" data-target="errors-section"><span class="material-icons">error_outline</span> Errors</div>
+      <div class="docs-nav-item" data-target="performance-section"><span class="material-icons">speed</span> Performance</div>
+      <div class="docs-nav-item" data-target="roadmap-section"><span class="material-icons">map</span> Roadmap</div>
+      <div class="docs-nav-item" data-target="license-section"><span class="material-icons">gavel</span> License</div>
+    </nav>
+
+    <div class="docs-content">
+
+      <div class="doc-section" id="features-section">
+        <h3 class="doc-section-title"><span class="material-icons">star</span> Features</h3>
+        <p class="doc-section-desc">Everything Sednicon supports out of the box.</p>
+        <div class="features-grid" style="border:1px solid var(--border); border-radius:8px;">
+          <div class="feature-card"><div class="feature-icon"><span class="material-icons">link</span></div><div class="feature-title">Simple URL-based API</div></div>
+          <div class="feature-card"><div class="feature-icon"><span class="material-icons">block</span></div><div class="feature-title">No package installation required</div></div>
+          <div class="feature-card"><div class="feature-icon"><span class="material-icons">auto_awesome</span></div><div class="feature-title">Dynamic icon rendering</div></div>
+          <div class="feature-card"><div class="feature-icon"><span class="material-icons">palette</span></div><div class="feature-title">Custom colors</div></div>
+          <div class="feature-card"><div class="feature-icon"><span class="material-icons">aspect_ratio</span></div><div class="feature-title">Custom sizes</div></div>
+          <div class="feature-card"><div class="feature-icon"><span class="material-icons">widgets</span></div><div class="feature-title">Works with HTML, CSS, React, Vue & more</div></div>
+          <div class="feature-card"><div class="feature-icon"><span class="material-icons">cloud</span></div><div class="feature-title">CDN-friendly</div></div>
+        </div>
+      </div>
+
+      <div class="doc-section" id="quickstart-section">
+        <h3 class="doc-section-title"><span class="material-icons">bolt</span> Quick Start</h3>
+        <p class="doc-section-desc">The easiest way to use Sednicon — drop this into any HTML page:</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-lang">HTML</span>
+            <button class="code-copy" onclick="copyCode(this)"><span class="material-icons">content_copy</span> Copy</button>
+          </div>
+          <pre><span class="token-tag">&lt;img</span>
+  <span class="token-key">src</span>=<span class="token-string">"https://sednicon.sednium.com/api/render?q=rocket&amp;color=000000&amp;size=64"</span>
+  <span class="token-key">alt</span>=<span class="token-string">"rocket"</span>
+<span class="token-tag">/&gt;</span></pre>
+        </div>
+        <p class="doc-section-desc" style="margin-top:16px;">That's it. The icon will be generated automatically.</p>
+      </div>
+
+      <div class="doc-section" id="api-section">
+        <h3 class="doc-section-title"><span class="material-icons">tune</span> API Reference</h3>
+
+        <h4 style="font-size:14px; font-weight:600; margin-bottom:8px; color:var(--text);">Endpoint</h4>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-lang">HTTP</span>
+            <button class="code-copy" onclick="copyCode(this)"><span class="material-icons">content_copy</span> Copy</button>
+          </div>
+          <pre><span class="token-key">GET</span> https://sednicon.sednium.com/api/render</pre>
+        </div>
+
+        <h4 style="font-size:14px; font-weight:600; margin:32px 0 8px; color:var(--text);">Query Parameters</h4>
+        <p class="doc-section-desc">All parameters are passed as query strings to the <code style="color:var(--accent3);font-size:12px">/api/render</code> endpoint.</p>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Required</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="Parameter">q</td>
+              <td data-label="Required"><span class="tag">Yes</span></td>
+              <td data-label="Type">String</td>
+              <td data-label="Description">Icon name (e.g. <code style="color:var(--text);font-size:11px">rocket</code>, <code style="color:var(--text);font-size:11px">google</code>)</td>
+            </tr>
+            <tr>
+              <td data-label="Parameter">color</td>
+              <td data-label="Required"><span class="tag" style="background:var(--surface3); color:var(--text-dim);">No</span></td>
+              <td data-label="Type">Hex</td>
+              <td data-label="Description">Icon color without <code style="color:var(--text);font-size:11px">#</code> (default: <code style="color:var(--text);font-size:11px">000000</code>)</td>
+            </tr>
+            <tr>
+              <td data-label="Parameter">size</td>
+              <td data-label="Required"><span class="tag" style="background:var(--surface3); color:var(--text-dim);">No</span></td>
+              <td data-label="Type">Number</td>
+              <td data-label="Description">Icon size in pixels (default: <code style="color:var(--text);font-size:11px">24</code>)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4 style="font-size:14px; font-weight:600; margin:32px 0 8px; color:var(--text);">Examples</h4>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div>
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim); margin-bottom:4px;">Default Icon</div>
+            <div class="code-block"><pre style="padding:12px 16px; font-size:12px;">https://sednicon.sednium.com/api/render?q=rocket</pre></div>
+          </div>
+          <div>
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim); margin-bottom:4px;">Custom Color</div>
+            <div class="code-block"><pre style="padding:12px 16px; font-size:12px;">https://sednicon.sednium.com/api/render?q=rocket&amp;color=ff0000</pre></div>
+          </div>
+          <div>
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim); margin-bottom:4px;">Custom Size</div>
+            <div class="code-block"><pre style="padding:12px 16px; font-size:12px;">https://sednicon.sednium.com/api/render?q=rocket&amp;size=128</pre></div>
+          </div>
+          <div>
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim); margin-bottom:4px;">Full Example</div>
+            <div class="code-block"><pre style="padding:12px 16px; font-size:12px;">https://sednicon.sednium.com/api/render?q=rocket&amp;color=000000&amp;size=64</pre></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="doc-section" id="html-section">
+        <h3 class="doc-section-title"><span class="material-icons">html</span> HTML</h3>
+        <p class="doc-section-desc">Drop a URL into any &lt;img&gt; tag. Works in Webflow, WordPress, Framer, and raw HTML — no build step required.</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-lang">HTML</span>
+            <button class="code-copy" onclick="copyCode(this)"><span class="material-icons">content_copy</span> Copy</button>
+          </div>
+          <pre><span class="token-tag">&lt;img</span>
+  <span class="token-key">src</span>=<span class="token-string">"https://sednicon.sednium.com/api/render?q=home&amp;color=0066ff&amp;size=64"</span>
+  <span class="token-key">alt</span>=<span class="token-string">"Home Icon"</span>
+<span class="token-tag">/&gt;</span></pre>
+        </div>
+      </div>
+
+      <div class="doc-section" id="css-section">
+        <h3 class="doc-section-title"><span class="material-icons">brush</span> CSS Background</h3>
+        <p class="doc-section-desc">Use as a background-image for styled buttons, pseudo-elements, or any element that needs an icon without extra markup.</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-lang">CSS</span>
+            <button class="code-copy" onclick="copyCode(this)"><span class="material-icons">content_copy</span> Copy</button>
+          </div>
+          <pre><span class="token-key">.icon-rocket</span> {
+  <span class="token-key">width</span>: 64px;
+  <span class="token-key">height</span>: 64px;
+  <span class="token-key">background-image</span>: <span class="token-string">url("https://sednicon.sednium.com/api/render?q=rocket&amp;color=000000&amp;size=64")</span>;
+  <span class="token-key">background-size</span>: 64px 64px;
+}</pre>
+        </div>
+      </div>
+
+      <div class="doc-section" id="react-section">
+        <h3 class="doc-section-title"><span class="material-icons">code</span> React</h3>
+        <p class="doc-section-desc">Create a reusable component:</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-lang">JSX</span>
+            <button class="code-copy" onclick="copyCode(this)"><span class="material-icons">content_copy</span> Copy</button>
+          </div>
+          <pre><span class="token-key">function</span> Icon({ name, color = <span class="token-string">"000000"</span>, size = 64 }) {
+  <span class="token-key">return</span> (
+    <span class="token-tag">&lt;img</span>
+      <span class="token-key">src</span>=<span class="token-string">{`https://sednicon.sednium.com/api/render?q=${name}&color=${color}&size=${size}`}</span>
+      <span class="token-key">alt</span>=<span class="token-string">{name}</span>
+    <span class="token-tag">/&gt;</span>
+  );
+}</pre>
+        </div>
+        <p class="doc-section-desc" style="margin-top:16px;">Usage:</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-lang">JSX</span>
+            <button class="code-copy" onclick="copyCode(this)"><span class="material-icons">content_copy</span> Copy</button>
+          </div>
+          <pre><span class="token-tag">&lt;Icon</span>
+  <span class="token-key">name</span>=<span class="token-string">"rocket"</span>
+  <span class="token-key">color</span>=<span class="token-string">"ff6600"</span>
+  <span class="token-key">size</span>=<span class="token-string">{80}</span>
+<span class="token-tag">/&gt;</span></pre>
+        </div>
+      </div>
+
+      <div class="doc-section" id="vue-section">
+        <h3 class="doc-section-title"><span class="material-icons">layers</span> Vue</h3>
+        <p class="doc-section-desc">Bind the icon URL reactively using a template expression. Works with Vue 3 Composition or Options API.</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-lang">Vue</span>
+            <button class="code-copy" onclick="copyCode(this)"><span class="material-icons">content_copy</span> Copy</button>
+          </div>
+          <pre><span class="token-tag">&lt;img</span>
+  <span class="token-key">:src</span>=<span class="token-string">"`https://sednicon.sednium.com/api/render?q=rocket&color=000000&size=64`"</span>
+  <span class="token-key">alt</span>=<span class="token-string">"rocket"</span>
+<span class="token-tag">/&gt;</span></pre>
+        </div>
+      </div>
+
+      <div class="doc-section" id="frameworks-section">
+        <h3 class="doc-section-title"><span class="material-icons">widgets</span> Framework Support</h3>
+        <p class="doc-section-desc">Sednicon works anywhere an &lt;img&gt; tag or URL can be used, including:</p>
+        <div class="features-grid framework-grid" style="border:1px solid var(--border); border-radius:8px;">
+          <div class="feature-card" style="padding:24px 16px;"><div class="feature-title">HTML</div></div>
+          <div class="feature-card" style="padding:24px 16px;"><div class="feature-title">CSS</div></div>
+          <div class="feature-card" style="padding:24px 16px;"><div class="feature-title">React</div></div>
+          <div class="feature-card" style="padding:24px 16px;"><div class="feature-title">Vue</div></div>
+          <div class="feature-card" style="padding:24px 16px;"><div class="feature-title">Angular</div></div>
+          <div class="feature-card" style="padding:24px 16px;"><div class="feature-title">Flutter Web</div></div>
+          <div class="feature-card" style="padding:24px 16px;"><div class="feature-title">Android WebView</div></div>
+          <div class="feature-card" style="padding:24px 16px;"><div class="feature-title">Any framework supporting images</div></div>
+        </div>
+      </div>
+
+      <div class="doc-section" id="errors-section">
+        <h3 class="doc-section-title"><span class="material-icons">error_outline</span> Error Handling</h3>
+
+        <h4 style="font-size:14px; font-weight:600; margin-bottom:8px; color:var(--text);">Invalid Icon</h4>
+        <p class="doc-section-desc">If the requested icon name can't be matched in any icon set, example response:</p>
+        <div class="code-block"><pre style="padding:12px 16px; font-size:12px;"><span class="token-key">404</span> Icon not found</pre></div>
+
+        <h4 style="font-size:14px; font-weight:600; margin:24px 0 8px; color:var(--text);">Invalid Parameter</h4>
+        <p class="doc-section-desc">If a parameter value is malformed (e.g. an invalid hex color or non-numeric size):</p>
+        <div class="code-block"><pre style="padding:12px 16px; font-size:12px;"><span class="token-key">400</span> Invalid parameter</pre></div>
+      </div>
+
+      <div class="doc-section" id="performance-section">
+        <h3 class="doc-section-title"><span class="material-icons">speed</span> Performance Recommendations</h3>
+        <p class="doc-section-desc">For better performance:</p>
+        <ul style="color:var(--text-muted); font-size:14px; line-height:1.9; padding-left:20px; margin-bottom:16px;">
+          <li>Use common sizes: <code style="color:var(--text);font-size:12px">16px</code>, <code style="color:var(--text);font-size:12px">24px</code>, <code style="color:var(--text);font-size:12px">32px</code>, <code style="color:var(--text);font-size:12px">48px</code>, <code style="color:var(--text);font-size:12px">64px</code>, <code style="color:var(--text);font-size:12px">128px</code></li>
+          <li>Cache generated icons whenever possible (e.g. via CDN edge caching or browser cache headers)</li>
+        </ul>
+
+        <h4 style="font-size:14px; font-weight:600; margin:24px 0 8px; color:var(--text);">API Versioning</h4>
+        <p class="doc-section-desc">Future versions may use:</p>
+        <div class="code-block"><pre style="padding:12px 16px; font-size:12px;">/api/v1/render</pre></div>
+        <p class="doc-section-desc" style="margin-top:12px;">This ensures compatibility with future updates.</p>
+      </div>
+
+      <div class="doc-section" id="roadmap-section">
+        <h3 class="doc-section-title"><span class="material-icons">map</span> Roadmap</h3>
+
+        <h4 style="font-size:14px; font-weight:600; margin-bottom:8px; color:var(--text);">Completed</h4>
+        <ul style="color:var(--text-muted); font-size:14px; line-height:1.9; padding-left:20px; margin-bottom:24px;">
+          <li>Basic icon rendering API</li>
+          <li>Color customization</li>
+          <li>Size customization</li>
+          <li>200,000+ icon search via Iconify</li>
+          <li>Multi-set fallback chain</li>
+        </ul>
+
+        <h4 style="font-size:14px; font-weight:600; margin-bottom:8px; color:var(--text);">Planned</h4>
+        <ul style="color:var(--text-muted); font-size:14px; line-height:1.9; padding-left:20px;">
+          <li>More icon collections</li>
+          <li>SVG optimization</li>
+          <li>SDK packages</li>
+          <li>Official framework components</li>
+        </ul>
+      </div>
+
+      <div class="doc-section" id="license-section">
+        <h3 class="doc-section-title"><span class="material-icons">gavel</span> License & Credits</h3>
+        <p class="doc-section-desc">Sednicon is released under the MIT License and is free to use, including for commercial projects.</p>
+        <p class="doc-section-desc" style="margin-top:8px;">Icons are sourced from the open-source <a href="https://iconify.design" target="_blank" rel="noopener" style="color:var(--accent3);">Iconify</a> project, including Material Symbols, Lucide, Simple Icons, and other community icon sets — each retaining their respective open-source licenses.</p>
+        <p class="doc-section-desc" style="margin-top:8px;">Built by <a href="https://sednium.com" target="_blank" rel="noopener" style="color:var(--accent3);">Sednium</a>. Source code available on <a href="https://github.com/AnkushDas4/IconFlow" target="_blank" rel="noopener" style="color:var(--accent3);">GitHub</a>.</p>
+
+        <h4 style="font-size:14px; font-weight:600; margin:24px 0 8px; color:var(--text);">Contributing</h4>
+        <p class="doc-section-desc">Suggestions and improvements are welcome — help make Sednicon a better icon API for developers. Open an issue or pull request on GitHub.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="text-align:center; margin-top:64px;">
+    <a href="index.html#docs" class="btn-primary" style="display:inline-flex;">
+      <span class="material-icons">rocket_launch</span> Try the Live Generator
     </a>
   </div>
 </section>
-
 <footer>
   <div class="footer-left">
     <a href="/" class="footer-logo">Sednicon</a>
@@ -1155,7 +1289,6 @@
   </div>
   <div class="footer-right">Built by <a href="https://sednium.com" target="_blank" rel="noopener" style="color:var(--accent3); text-decoration:none;">Sednium</a> · Powered by Vercel Edge · MIT License</div>
 </footer>
-
 <script>
 // ── CURSOR ──
 const cursor = document.getElementById('cursor');
@@ -1184,120 +1317,7 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
   localStorage.setItem('sednicon-theme', isDark ? 'dark' : 'light');
 });
 
-// ── TICKER ──
-const items = [
-  { icon: 'rocket', label: 'Material Icons' },
-  { icon: 'auto_awesome', label: 'Brand Logos' },
-  { icon: 'bolt', label: 'Edge Powered' },
-  { icon: 'palette', label: 'Any Color' },
-  { icon: 'code', label: 'React Ready' },
-  { icon: 'grid_view', label: '200,000+ Icons' },
-  { icon: 'lock_open', label: 'Always Free' },
-  { icon: 'speed', label: 'Sub-50ms' },
-];
-const t = document.getElementById('ticker');
-const all = [...items,...items,...items,...items];
-t.innerHTML = all.map(i => `<div class="ticker-item"><span class="material-icons">${i.icon}</span>${i.label}</div>`).join('');
-
-// ── GENERATOR ──
-const BASE = 'https://sednicon.sednium.com/api/render';
-let fmt = 'url';
-
-function getColor() {
-  let c = document.getElementById('color-text').value.replace('#','');
-  if (!c) c = '000000';
-  return c;
-}
-function getSize() {
-  let v = parseInt(document.getElementById('size-input').value);
-  if (isNaN(v)) v = 64;
-  return Math.min(512, Math.max(8, v));
-}
-function getQ() { return document.getElementById('q-input').value.trim() || 'rocket'; }
-function buildUrl() { return `${BASE}?q=${getQ()}&color=${getColor()}&size=${getSize()}`; }
-
-function updateOutput() {
-  const url = buildUrl(), q = getQ(), size = getSize(), color = getColor();
-  const texts = {
-    url: url,
-    html: `<img src="${url}" alt="${q}" width="${size}" />`,
-    css: `.icon-${q} {\n  background-image: url('${url}');\n  background-size: ${size}px ${size}px;\n}`,
-    react: `<Icon name="${q}" color="${color}" size={${size}} />`,
-    vue: `<img :src="\`${BASE}?q=${q}&color=${color}&size=${size}\`" alt="${q}" width="${size}" />`
-  };
-  document.getElementById('output-box').textContent = texts[fmt];
-  
-  const icon = document.getElementById('preview-icon');
-  icon.classList.add('loading');
-  icon.onload = () => icon.classList.remove('loading');
-  
-  // FIX: Smart routing for the fallback image!
-  icon.onerror = () => {
-      icon.classList.remove('loading');
-      icon.onerror = null;
-      
-      const brands = ['github', 'google', 'apple', 'microsoft', 'amazon', 'meta', 'twitter', 'linkedin', 'youtube', 'netflix', 'spotify', 'discord', 'slack', 'figma', 'notion', 'vercel', 'docker', 'kubernetes', 'android', 'windows', 'facebook'];
-      const isBrand = brands.includes(q);
-      const provider = isBrand ? 'simple-icons' : 'material-symbols';
-      const fetchName = isBrand ? q : q.replace(/_/g, '-');
-      const fallbackColor = document.getElementById('color-text').value.replace('#', '');
-      
-      icon.src = `https://api.iconify.design/${provider}/${fetchName}.svg?color=%23${fallbackColor || '000000'}`; 
-  };
-  
-  icon.src = url;
-  document.getElementById('preview-dims').textContent = `${size} × ${size} · SVG`;
-}
-
-document.getElementById('q-input').addEventListener('input', updateOutput);
-document.getElementById('size-input').addEventListener('input', updateOutput);
-document.getElementById('size-input').addEventListener('blur', e => {
-  e.target.value = getSize();
-  updateOutput();
-});
-document.getElementById('color-text').addEventListener('input', e => {
-  let v = e.target.value;
-  if (v.startsWith('#') && v.length === 7) document.getElementById('color-picker').value = v;
-  updateOutput();
-});
-document.getElementById('color-picker').addEventListener('input', e => {
-  document.getElementById('color-text').value = e.target.value;
-  updateOutput();
-});
-document.querySelectorAll('.format-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.format-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    fmt = tab.dataset.fmt;
-    updateOutput();
-  });
-});
-document.getElementById('copy-btn').addEventListener('click', () => {
-  const text = document.getElementById('output-box').textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById('copy-btn');
-    btn.classList.add('copied');
-    btn.querySelector('.material-icons').textContent = 'check';
-    btn.childNodes[1].nodeValue = ' Copied!';
-    setTimeout(() => {
-      btn.classList.remove('copied');
-      btn.querySelector('.material-icons').textContent = 'content_copy';
-      btn.childNodes[1].nodeValue = ' Copy to Clipboard';
-    }, 2000);
-  });
-});
-
-document.getElementById('reset-generator').addEventListener('click', () => {
-  document.getElementById('q-input').value = 'rocket';
-  document.getElementById('color-text').value = '#000000';
-  document.getElementById('color-picker').value = '#000000';
-  document.getElementById('size-input').value = 64;
-  document.querySelectorAll('.format-tab').forEach(t => t.classList.remove('active'));
-  document.querySelector('.format-tab[data-fmt="url"]').classList.add('active');
-  fmt = 'url';
-  updateOutput();
-});
-
+// ── COPY CODE ──
 function copyCode(btn) {
   const pre = btn.closest('.code-block').querySelector('pre');
   navigator.clipboard.writeText(pre.innerText).then(() => {
@@ -1306,21 +1326,13 @@ function copyCode(btn) {
   });
 }
 
-// ── INIT ──
-const urlParams = new URLSearchParams(window.location.search);
-const urlIcon = urlParams.get('icon');
-if (urlIcon) {
-    document.getElementById('q-input').value = urlIcon;
-}
-updateOutput();
-
-// ── SCROLL REVEAL ──
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity = '1'; e.target.style.transform = 'translateY(0)'; } });
-}, { threshold: 0.1 });
-document.querySelectorAll('.feature-card').forEach(el => {
-  el.style.opacity = '0'; el.style.transform = 'translateY(24px)'; el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-  observer.observe(el);
+// ── DOCS NAV ──
+document.querySelectorAll('.docs-nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.docs-nav-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById(item.dataset.target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 });
 </script>
 <script>

@@ -1,6 +1,6 @@
 /**
- * Sednicon API - The Unified Icon Engine v2
- * Sources: Custom Brands → Simple Icons → Iconify (multi-set fallback chain)
+ * Sednicon API - The Unified Icon Engine v3
+ * Sources: Custom Brands → Explicit set → Simple Icons → 16-set fallback chain → Iconify full-text search → Generic fallback
  */
 
 export const config = { runtime: 'edge' };
@@ -42,6 +42,12 @@ const FALLBACK_SETS = [
   'carbon',
   'ion',
   'feather',
+  'simple-icons',
+  'game-icons',
+  'logos',
+  'skill-icons',
+  'flat-color-icons',
+  'emojione',
 ];
 
 // ─── 3. HELPERS ──────────────────────────────────────────────────────────────
@@ -74,6 +80,21 @@ async function fetchWithFallback(name) {
     if (svg) return svg;
   }
   return null;
+}
+
+/** Last resort: search Iconify's full index for the closest matching icon */
+async function searchIconifyFallback(query) {
+  try {
+    const res = await fetch(`https://api.iconify.design/search?query=${encodeURIComponent(query)}&limit=1`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const icons = data.icons || [];
+    if (!icons.length) return null;
+    const [prefix, name] = icons[0].split(':');
+    return await fetchIconify(prefix, name);
+  } catch {
+    return null;
+  }
 }
 
 /** Apply size & color to a raw SVG string */
@@ -146,7 +167,12 @@ export default async function handler(request) {
     svgRaw = await fetchWithFallback(q);
   }
 
-  // ── Strategy 6: Hardcoded fallback ──
+  // ── Strategy 6: Iconify full-text search (closest match across 200k+ icons) ──
+  if (!svgRaw) {
+    svgRaw = await searchIconifyFallback(q.replace(/[-_]/g, ' '));
+  }
+
+  // ── Strategy 7: Hardcoded fallback ──
   if (!svgRaw) {
     svgRaw = FALLBACK_SVG;
   }

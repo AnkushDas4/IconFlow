@@ -79,12 +79,24 @@
     --bg-overlay: rgba(10,10,11,0.85);
     --bg-overlay2: rgba(10,10,11,0.92);
   }
-  html.dark body::before { opacity: 0.04; }
+  /* noise overlay removed */
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth;
          overflow-x: hidden; 
         }
+
+  /* Disable text selection/copy site-wide; inputs remain selectable */
+  body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  input, textarea {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    user-select: text;
+  }
   
   body {
     background: var(--bg);
@@ -93,30 +105,34 @@
     font-size: 14px;
     line-height: 1.6;
     overflow-x: hidden;
-    cursor: none;
     transition: background 0.3s ease, color 0.3s ease;
+  }
+
+  /* Custom cursor: desktop (mouse) only */
+  @media (hover: hover) and (pointer: fine) {
+    *, a, button, input, select, [data-fmt], [data-target], .theme-toggle, .icon-item {
+      cursor: none !important;
+    }
+    .cursor, .cursor-ring { display: block; }
   }
 
   .cursor {
     position: fixed; width: 10px; height: 10px;
-    background: var(--accent); border-radius: 50%;
+    background: #2563eb; border-radius: 50%;
     pointer-events: none; z-index: 9999;
     transform: translate(-50%, -50%);
     transition: transform 0.1s, width 0.3s, height 0.3s;
-    mix-blend-mode: multiply;
+    display: none;
   }
   .cursor-ring {
+    display: none;
     position: fixed; width: 36px; height: 36px;
     border: 1px solid rgba(37,99,235,0.4); border-radius: 50%;
     pointer-events: none; z-index: 9998;
     transform: translate(-50%, -50%);
     transition: transform 0.15s ease-out, width 0.4s, height 0.4s;
   }
-  body::before {
-    content: ''; position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
-    opacity: 0.03; pointer-events: none; z-index: 9997;
-  }
+  /* noise overlay removed — caused rendering artifacts on some Android GPUs */
 
   /* ── NAV ── */
   nav {
@@ -147,7 +163,6 @@
     border-radius: 8px;
     background: var(--surface);
     color: var(--text-muted);
-    cursor: none;
     transition: color 0.2s, border-color 0.2s, background 0.2s;
     -webkit-tap-highlight-color: transparent;
     flex-shrink: 0;
@@ -231,7 +246,7 @@
   .color-ctrl input[type=color] {
     -webkit-appearance: none; width: 28px; height: 28px;
     border: 1px solid var(--border); border-radius: 4px;
-    background: transparent; cursor: none; padding: 2px;
+    background: transparent; padding: 2px;
   }
   .color-ctrl input[type=color]::-webkit-color-swatch-wrapper { padding: 0; border-radius: 3px; overflow: hidden; }
   .color-ctrl input[type=color]::-webkit-color-swatch { border: none; border-radius: 3px; }
@@ -239,6 +254,20 @@
     background: transparent; border: none; outline: none; width: 72px;
     color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 12px;
   }
+  .color-swatches {
+    display: flex; align-items: center; gap: 6px;
+    padding-left: 8px; border-left: 1px solid var(--border);
+  }
+  .color-swatch {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1px solid var(--border-bright);
+    flex-shrink: 0;
+    transition: transform 0.15s, border-color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .color-swatch:hover { transform: scale(1.15); }
+  .color-swatch.active { border-color: var(--accent); border-width: 2px; }
 
   .size-ctrl {
     display: flex; align-items: center; gap: 8px;
@@ -251,9 +280,25 @@
     padding: 4px 10px; background: transparent;
     border: 1px solid var(--border); border-radius: 4px;
     color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-size: 11px;
-    cursor: none; transition: background 0.2s, border-color 0.2s, color 0.2s;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
   }
   .size-btn.active { background: var(--accent); border-color: var(--accent); color: #ffffff; font-weight: 600; }
+  .reset-btn {
+    display: flex; align-items: center; gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+  }
+  .reset-btn:hover { color: var(--text); border-color: var(--border-bright); background: var(--bg); }
+  .reset-btn .material-icons { font-size: 16px; }
 
   /* ── CATEGORY TABS ── */
   .cat-bar {
@@ -268,7 +313,6 @@
     text-transform: uppercase; 
     color: var(--text-muted);
     white-space: nowrap; 
-    cursor: none;
     border-bottom: 2px solid transparent;
     transition: color 0.2s, border-color 0.2s;
     display: flex; 
@@ -314,7 +358,6 @@
     justify-content: center;
     gap: 6px;
     padding: 12px 6px;
-    cursor: none;
     transition: background 0.2s, border-color 0.2s, transform 0.2s;
     position: relative;
     overflow: hidden;
@@ -330,8 +373,8 @@
   .icon-item:hover::before { opacity: 1; }
   
   .icon-item img {
-    width: 32px; height: 32px;
-    transition: transform 0.2s;
+    width: var(--icon-display-size, 32px); height: var(--icon-display-size, 32px);
+    transition: transform 0.2s, width 0.2s, height 0.2s;
     flex-shrink: 0;
     color: transparent; 
   }
@@ -383,7 +426,7 @@
     width: 44px; height: 44px;
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 8px; display: flex; align-items: center; justify-content: center;
-    cursor: none; transition: background 0.2s, border-color 0.2s, opacity 0.3s, transform 0.3s;
+    transition: background 0.2s, border-color 0.2s, opacity 0.3s, transform 0.3s;
     opacity: 0; transform: translateY(16px);
     z-index: 99;
   }
@@ -432,7 +475,7 @@
   </a>
   <ul class="nav-links">
     <li><a href="library.html" class="active">Icon Library</a></li>
-    <li><a href="index.html#docs">Docs</a></li>
+    <li><a href="docs.html">Docs</a></li>
     <li><button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
       <span class="material-icons icon-light">dark_mode</span>
       <span class="material-icons icon-dark">light_mode</span>
@@ -461,6 +504,16 @@
     <label>Color</label>
     <input type="color" id="lib-color-picker" value="#000000"/>
     <input type="text" id="lib-color-text" value="#000000"/>
+    <div class="color-swatches" id="color-swatches">
+      <button class="color-swatch active" data-color="#000000" style="background:#000000" aria-label="Black"></button>
+      <button class="color-swatch" data-color="#ffffff" style="background:#ffffff" aria-label="White"></button>
+      <button class="color-swatch" data-color="#2563eb" style="background:#2563eb" aria-label="Blue"></button>
+      <button class="color-swatch" data-color="#ef4444" style="background:#ef4444" aria-label="Red"></button>
+      <button class="color-swatch" data-color="#22c55e" style="background:#22c55e" aria-label="Green"></button>
+      <button class="color-swatch" data-color="#f59e0b" style="background:#f59e0b" aria-label="Amber"></button>
+      <button class="color-swatch" data-color="#a855f7" style="background:#a855f7" aria-label="Purple"></button>
+      <button class="color-swatch" data-color="#ec4899" style="background:#ec4899" aria-label="Pink"></button>
+    </div>
   </div>
   <div class="size-ctrl">
     <label>Size</label>
@@ -471,6 +524,9 @@
       <button class="size-btn" data-size="64">64</button>
     </div>
   </div>
+  <button class="reset-btn" id="reset-library" aria-label="Reset filters">
+    <span class="material-icons">restart_alt</span> Reset
+  </button>
 </div>
 
 <div class="cat-bar" id="cat-bar"></div>
@@ -777,12 +833,54 @@ document.getElementById('search-input').addEventListener('input', e => renderAll
 
 document.getElementById('lib-color-picker').addEventListener('input', e => {
   document.getElementById('lib-color-text').value = e.target.value;
+  syncSwatchActive(e.target.value);
   updateAllIcons();
 });
 document.getElementById('lib-color-text').addEventListener('input', e => {
   let v = e.target.value;
   if (v.startsWith('#') && v.length === 7) document.getElementById('lib-color-picker').value = v;
+  syncSwatchActive(v);
   updateAllIcons();
+});
+
+function syncSwatchActive(hex) {
+  document.querySelectorAll('.color-swatch').forEach(s => {
+    s.classList.toggle('active', s.dataset.color.toLowerCase() === hex.toLowerCase());
+  });
+}
+
+document.querySelectorAll('.color-swatch').forEach(swatch => {
+  swatch.addEventListener('click', () => {
+    const hex = swatch.dataset.color;
+    document.getElementById('lib-color-text').value = hex;
+    document.getElementById('lib-color-picker').value = hex;
+    syncSwatchActive(hex);
+    updateAllIcons();
+  });
+});
+
+document.getElementById('reset-library').addEventListener('click', () => {
+  // Reset search
+  document.getElementById('search-input').value = '';
+
+  // Reset color
+  document.getElementById('lib-color-text').value = '#000000';
+  document.getElementById('lib-color-picker').value = '#000000';
+  syncSwatchActive('#000000');
+
+  // Reset size
+  iconSize = 32;
+  document.documentElement.style.setProperty('--icon-display-size', '32px');
+  document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.size-btn[data-size="32"]').classList.add('active');
+
+  // Reset category filter
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.cat-tab[data-cat="all"]')?.classList.add('active');
+  document.querySelectorAll('.cat-section').forEach(s => s.style.display = '');
+
+  renderAll('');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 document.querySelectorAll('.size-btn').forEach(btn => {
@@ -790,6 +888,7 @@ document.querySelectorAll('.size-btn').forEach(btn => {
     document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     iconSize = parseInt(btn.dataset.size);
+    document.documentElement.style.setProperty('--icon-display-size', iconSize + 'px');
     updateAllIcons();
   });
 });
