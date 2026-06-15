@@ -1,37 +1,3 @@
 {
-  "version": 2,
-
-  "rewrites": [
-    {
-      "source": "/docs",
-      "destination": "/docs.html"
-    },
-    {
-      "source": "/library",
-      "destination": "/library.html"
-    },
-    {
-      "source": "/api/render",
-      "destination": "/api/render.js"
-    }
-  ],
-
-  "headers": [
-    {
-      "source": "/api/render",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=86400, immutable"
-        },
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        }
-      ]
-    }
-  ],
-
-  "cleanUrls": true,
-  "trailingSlash": false
+  "rewrites": []
 }

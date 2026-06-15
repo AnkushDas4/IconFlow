@@ -70,18 +70,6 @@ async function fetchIconify(prefix, name) {
   }
 }
 
-/** Try multiple Iconify sets in order; returns first valid SVG or null */
-async function fetchWithFallback(name) {
-  // Normalise: underscores → hyphens (material-symbols style)
-  const hyphenName = name.replace(/_/g, '-');
-
-  for (const prefix of FALLBACK_SETS) {
-    const svg = await fetchIconify(prefix, hyphenName);
-    if (svg) return svg;
-  }
-  return null;
-}
-
 /** Last resort: search Iconify's full index for the closest matching icon */
 async function searchIconifyFallback(query) {
   try {
@@ -128,20 +116,38 @@ const FALLBACK_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 
 
 // ─── 4. HANDLER ─────────────────────────────────────────────────────────────
 export default async function handler(request) {
+  // CORS preflight
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Max-Age': '86400',
+      },
+    });
+  }
+
   const { searchParams } = new URL(request.url);
   const q       = (searchParams.get('q') || 'circle').toLowerCase().trim();
   const color   = searchParams.get('color') || 'black';
-  const size    = parseInt(searchParams.get('size') || '24', 10) || 24;
+  const sizeRaw = parseInt(searchParams.get('size') || '24', 10);
+  const size    = Number.isFinite(sizeRaw) ? Math.min(2048, Math.max(1, sizeRaw)) : 24;
   const setHint = searchParams.get('set') || null; // optional: ?set=lucide
 
-  // Sanitise color: bare hex → prepend #
-  const cleanColor = /^[0-9a-fA-F]{3,8}$/.test(color) ? `#${color}` : color;
+  // Sanitise color: bare hex → prepend #; reject anything that isn't a hex or CSS color keyword
+  const cleanColor = /^[0-9a-fA-F]{3,8}$/.test(color)
+    ? `#${color}`
+    : /^[a-zA-Z]+$/.test(color) ? color : '#000000';
 
   let svgRaw = null;
+  let source = 'fallback';
 
   // ── Strategy 1: Custom brand library (instant, no network) ──
   if (BRAND_ICONS[q]) {
     svgRaw = BRAND_ICONS[q];
+    source = 'custom-brand';
   }
 
   // ── Strategy 2: Explicit set prefix in query (e.g. "lucide:home") ──
@@ -150,31 +156,40 @@ export default async function handler(request) {
     const prefix = q.slice(0, colonIdx);
     const name   = q.slice(colonIdx + 1);
     svgRaw = await fetchIconify(prefix, name);
+    if (svgRaw) source = `iconify:${prefix}`;
   }
 
   // ── Strategy 3: Explicit ?set= parameter override ──
   if (!svgRaw && setHint) {
     svgRaw = await fetchIconify(setHint, q.replace(/_/g, '-'));
+    if (svgRaw) source = `iconify:${setHint}`;
   }
 
   // ── Strategy 4: Brand → simple-icons ──
   if (!svgRaw && BRAND_SET.has(q)) {
     svgRaw = await fetchIconify('simple-icons', q);
+    if (svgRaw) source = 'iconify:simple-icons';
   }
 
   // ── Strategy 5: Multi-set fallback chain (material-symbols → lucide → …) ──
   if (!svgRaw) {
-    svgRaw = await fetchWithFallback(q);
+    for (const prefix of FALLBACK_SETS) {
+      const hyphenName = q.replace(/_/g, '-');
+      svgRaw = await fetchIconify(prefix, hyphenName);
+      if (svgRaw) { source = `iconify:${prefix}`; break; }
+    }
   }
 
   // ── Strategy 6: Iconify full-text search (closest match across 200k+ icons) ──
   if (!svgRaw) {
     svgRaw = await searchIconifyFallback(q.replace(/[-_]/g, ' '));
+    if (svgRaw) source = 'iconify:search';
   }
 
   // ── Strategy 7: Hardcoded fallback ──
   if (!svgRaw) {
     svgRaw = FALLBACK_SVG;
+    source = 'generic-fallback';
   }
 
   const output = applyStyle(svgRaw, size, cleanColor);
@@ -182,9 +197,11 @@ export default async function handler(request) {
   return new Response(output, {
     headers: {
       'Content-Type': 'image/svg+xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=86400, s-maxage=604800, immutable',
+      'Cache-Control': 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000, immutable',
       'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
       'Vary': 'Accept',
+      'X-Sednicon-Source': source,
     },
   });
 }

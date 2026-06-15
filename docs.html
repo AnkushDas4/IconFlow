@@ -1016,7 +1016,7 @@
       <div class="docs-nav-item" data-target="react-section"><span class="material-icons">code</span> React</div>
       <div class="docs-nav-item" data-target="vue-section"><span class="material-icons">layers</span> Vue</div>
       <div class="docs-nav-item" data-target="frameworks-section"><span class="material-icons">widgets</span> Frameworks</div>
-      <div class="docs-nav-item" data-target="errors-section"><span class="material-icons">error_outline</span> Errors</div>
+      <div class="docs-nav-item" data-target="errors-section"><span class="material-icons">error_outline</span> Errors & Status</div>
       <div class="docs-nav-item" data-target="performance-section"><span class="material-icons">speed</span> Performance</div>
       <div class="docs-nav-item" data-target="roadmap-section"><span class="material-icons">map</span> Roadmap</div>
       <div class="docs-nav-item" data-target="license-section"><span class="material-icons">gavel</span> License</div>
@@ -1118,6 +1118,16 @@
             <div class="code-block"><pre style="padding:12px 16px; font-size:12px;">https://sednicon.sednium.com/api/render?q=rocket&amp;color=000000&amp;size=64</pre></div>
           </div>
         </div>
+
+        <h4 style="font-size:14px; font-weight:600; margin:32px 0 8px; color:var(--text);">OpenAPI Specification</h4>
+        <p class="doc-section-desc">A full OpenAPI 3.1 spec is available for importing into Postman, Insomnia, Swagger UI, or any code generator:</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-lang">JSON</span>
+            <button class="code-copy" onclick="copyCode(this)"><span class="material-icons">content_copy</span> Copy</button>
+          </div>
+          <pre>https://sednicon.sednium.com/openapi.json</pre>
+        </div>
       </div>
 
       <div class="doc-section" id="html-section">
@@ -1214,15 +1224,38 @@
       </div>
 
       <div class="doc-section" id="errors-section">
-        <h3 class="doc-section-title"><span class="material-icons">error_outline</span> Error Handling</h3>
+        <h3 class="doc-section-title"><span class="material-icons">error_outline</span> Error Handling & Status</h3>
 
-        <h4 style="font-size:14px; font-weight:600; margin-bottom:8px; color:var(--text);">Invalid Icon</h4>
-        <p class="doc-section-desc">If the requested icon name can't be matched in any icon set, example response:</p>
-        <div class="code-block"><pre style="padding:12px 16px; font-size:12px;"><span class="token-key">404</span> Icon not found</pre></div>
+        <h4 style="font-size:14px; font-weight:600; margin-bottom:8px; color:var(--text);">Graceful Fallbacks</h4>
+        <p class="doc-section-desc">Sednicon never returns a broken image. If <code style="color:var(--text);font-size:11px">q</code> doesn't match any icon across all fallback sets, a generic placeholder icon is returned instead — your layout never breaks, even for typos or unsupported names. The response is always <code style="color:var(--text);font-size:11px">200 OK</code> with a valid SVG body.</p>
 
-        <h4 style="font-size:14px; font-weight:600; margin:24px 0 8px; color:var(--text);">Invalid Parameter</h4>
-        <p class="doc-section-desc">If a parameter value is malformed (e.g. an invalid hex color or non-numeric size):</p>
-        <div class="code-block"><pre style="padding:12px 16px; font-size:12px;"><span class="token-key">400</span> Invalid parameter</pre></div>
+        <h4 style="font-size:14px; font-weight:600; margin:24px 0 8px; color:var(--text);">Debugging: X-Sednicon-Source</h4>
+        <p class="doc-section-desc">Every response includes a custom header indicating which icon set ultimately served the request — useful for debugging why an icon looks different than expected:</p>
+        <div class="code-block"><pre style="padding:12px 16px; font-size:12px;">X-Sednicon-Source: iconify:material-symbols</pre></div>
+
+        <h4 style="font-size:14px; font-weight:600; margin:24px 0 8px; color:var(--text);">Response Headers</h4>
+        <p class="doc-section-desc">All responses from <code style="color:var(--text);font-size:11px">/api/render</code> include:</p>
+        <div class="code-block"><pre style="padding:12px 16px; font-size:12px;"><span class="token-key">Content-Type</span>: image/svg+xml; charset=utf-8
+<span class="token-key">Cache-Control</span>: public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000, immutable
+<span class="token-key">Access-Control-Allow-Origin</span>: *</pre></div>
+        <p class="doc-section-desc" style="margin-top:12px;">CORS is enabled for all origins, so Sednicon can be called directly from browser-side <code style="color:var(--text);font-size:11px">fetch()</code> as well as used in <code style="color:var(--text);font-size:11px">&lt;img&gt;</code> tags.</p>
+
+        <h4 style="font-size:14px; font-weight:600; margin:24px 0 8px; color:var(--text);">Status Endpoint</h4>
+        <p class="doc-section-desc">Check API health and version at:</p>
+        <div class="code-block">
+          <div class="code-block-header">
+            <span class="code-lang">HTTP</span>
+            <button class="code-copy" onclick="copyCode(this)"><span class="material-icons">content_copy</span> Copy</button>
+          </div>
+          <pre><span class="token-key">GET</span> https://sednicon.sednium.com/api/status</pre>
+        </div>
+        <p class="doc-section-desc" style="margin-top:12px;">Returns JSON with current status, version, upstream dependency health, and response latency:</p>
+        <div class="code-block"><pre style="padding:12px 16px; font-size:12px;">{
+  <span class="token-string">"status"</span>: <span class="token-string">"operational"</span>,
+  <span class="token-string">"version"</span>: <span class="token-string">"3.0.0"</span>,
+  <span class="token-string">"dependencies"</span>: { <span class="token-string">"iconify"</span>: <span class="token-string">"operational"</span> },
+  <span class="token-string">"upstream_check_ms"</span>: 142
+}</pre></div>
       </div>
 
       <div class="doc-section" id="performance-section">
@@ -1249,14 +1282,16 @@
           <li>Size customization</li>
           <li>200,000+ icon search via Iconify</li>
           <li>Multi-set fallback chain</li>
+          <li>CORS, caching, and response headers</li>
+          <li>/api/status health endpoint</li>
+          <li>OpenAPI 3.1 specification</li>
         </ul>
 
         <h4 style="font-size:14px; font-weight:600; margin-bottom:8px; color:var(--text);">Planned</h4>
         <ul style="color:var(--text-muted); font-size:14px; line-height:1.9; padding-left:20px;">
-          <li>More icon collections</li>
+          <li>Individual icon pages (e.g. /icons/rocket)</li>
           <li>SVG optimization</li>
-          <li>SDK packages</li>
-          <li>Official framework components</li>
+          <li>More icon collections</li>
         </ul>
       </div>
 
