@@ -409,7 +409,12 @@
   .card-body { padding: 24px; }
 
   .preview-area {
-    background: var(--surface);
+    background-color: var(--surface);
+    background-image:
+      linear-gradient(45deg, var(--surface3) 25%, transparent 25%, transparent 75%, var(--surface3) 75%),
+      linear-gradient(45deg, var(--surface3) 25%, transparent 25%, transparent 75%, var(--surface3) 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 8px 8px;
     border: 1px solid var(--border);
     border-radius: 8px;
     height: 140px;
@@ -428,16 +433,28 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at center, rgba(37,99,235,0.04) 0%, transparent 70%);
+    background: var(--bg);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .preview-area::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(37,99,235,0.06) 0%, transparent 70%);
     pointer-events: none;
   }
   #preview-icon {
+    position: relative;
+    z-index: 1;
     width: 64px;
     height: 64px;
     transition: opacity 0.2s, transform 0.3s;
   }
   #preview-icon.loading { opacity: 0.3; transform: scale(0.85); }
   .preview-dims {
+    position: relative;
+    z-index: 1;
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
     color: var(--text-dim);
@@ -1182,6 +1199,17 @@ window.addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY
 document.getElementById('theme-toggle').addEventListener('click', () => {
   const isDark = document.documentElement.classList.toggle('dark');
   localStorage.setItem('sednicon-theme', isDark ? 'dark' : 'light');
+
+  // If the user hasn't customized the color away from a default black/white,
+  // auto-switch so the preview remains visible in the new theme.
+  const colorInput = document.getElementById('color-text');
+  const current = colorInput.value.toLowerCase();
+  if (current === '#000000' || current === '#ffffff') {
+    const newColor = isDark ? '#ffffff' : '#000000';
+    colorInput.value = newColor;
+    document.getElementById('color-picker').value = newColor;
+    updateOutput();
+  }
 });
 
 // ── TICKER ──
@@ -1289,8 +1317,9 @@ document.getElementById('copy-btn').addEventListener('click', () => {
 
 document.getElementById('reset-generator').addEventListener('click', () => {
   document.getElementById('q-input').value = 'rocket';
-  document.getElementById('color-text').value = '#000000';
-  document.getElementById('color-picker').value = '#000000';
+  const defaultColor = document.documentElement.classList.contains('dark') ? '#ffffff' : '#000000';
+  document.getElementById('color-text').value = defaultColor;
+  document.getElementById('color-picker').value = defaultColor;
   document.getElementById('size-input').value = 64;
   document.querySelectorAll('.format-tab').forEach(t => t.classList.remove('active'));
   document.querySelector('.format-tab[data-fmt="url"]').classList.add('active');
@@ -1307,6 +1336,11 @@ function copyCode(btn) {
 }
 
 // ── INIT ──
+// If the page loaded in dark mode, default icon color to white for visibility
+if (document.documentElement.classList.contains('dark')) {
+  document.getElementById('color-text').value = '#ffffff';
+  document.getElementById('color-picker').value = '#ffffff';
+}
 const urlParams = new URLSearchParams(window.location.search);
 const urlIcon = urlParams.get('icon');
 if (urlIcon) {

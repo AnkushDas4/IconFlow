@@ -574,6 +574,18 @@ window.addEventListener('scroll', () => backBtn.classList.toggle('visible', scro
 document.getElementById('theme-toggle').addEventListener('click', () => {
   const isDark = document.documentElement.classList.toggle('dark');
   localStorage.setItem('sednicon-theme', isDark ? 'dark' : 'light');
+
+  // If the user hasn't customized the color away from a default black/white,
+  // auto-switch the icon color so icons remain visible in the new theme.
+  const colorInput = document.getElementById('lib-color-text');
+  const current = colorInput.value.toLowerCase();
+  if (current === '#000000' || current === '#ffffff') {
+    const newColor = isDark ? '#ffffff' : '#000000';
+    colorInput.value = newColor;
+    document.getElementById('lib-color-picker').value = newColor;
+    syncSwatchActive(newColor);
+  }
+
   updateAllIcons();
 });
 
@@ -864,9 +876,10 @@ document.getElementById('reset-library').addEventListener('click', () => {
   document.getElementById('search-input').value = '';
 
   // Reset color
-  document.getElementById('lib-color-text').value = '#000000';
-  document.getElementById('lib-color-picker').value = '#000000';
-  syncSwatchActive('#000000');
+  const defaultColor = document.documentElement.classList.contains('dark') ? '#ffffff' : '#000000';
+  document.getElementById('lib-color-text').value = defaultColor;
+  document.getElementById('lib-color-picker').value = defaultColor;
+  syncSwatchActive(defaultColor);
 
   // Reset size
   iconSize = 32;
@@ -910,6 +923,12 @@ document.addEventListener('mouseout', e => {
 });
 
 // ── INIT ──
+// If the page loaded in dark mode, default icon color to white for visibility
+if (document.documentElement.classList.contains('dark')) {
+  document.getElementById('lib-color-text').value = '#ffffff';
+  document.getElementById('lib-color-picker').value = '#ffffff';
+  syncSwatchActive('#ffffff');
+}
 renderAll();
 renderCatBar();
 </script>
