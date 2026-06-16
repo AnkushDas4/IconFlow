@@ -25,6 +25,8 @@ export default async function handler(request) {
 
   // Quick upstream health check against Iconify (with timeout)
   let iconifyStatus = 'unknown';
+  let dbStatus = 'unknown';
+
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 3000);
@@ -37,15 +39,29 @@ export default async function handler(request) {
     iconifyStatus = 'unreachable';
   }
 
+  // Quick Supabase check
+  try {
+    const dbRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/icons?limit=1`, {
+      headers: {
+        'apikey': process.env.SUPABASE_SERVICE_KEY,
+        'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
+      },
+    });
+    dbStatus = dbRes.ok ? 'operational' : 'degraded';
+  } catch {
+    dbStatus = 'unreachable';
+  }
+
   const latencyMs = Date.now() - startedAt;
 
   const body = {
-    status: iconifyStatus === 'operational' ? 'operational' : 'degraded',
+    status: iconifyStatus === 'operational' && dbStatus === 'operational' ? 'operational' : 'degraded',
     version: VERSION,
     released: RELEASED,
     timestamp: new Date().toISOString(),
     dependencies: {
       iconify: iconifyStatus,
+      database: dbStatus,
     },
     upstream_check_ms: latencyMs,
     endpoints: {

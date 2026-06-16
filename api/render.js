@@ -144,6 +144,33 @@ export default async function handler(request) {
   let svgRaw = null;
   let source = 'fallback';
 
+  // ── Strategy 0: AI-generated icon from Supabase (q=ai:{uuid}) ──
+  if (q.startsWith('ai:')) {
+    const iconId = q.slice(3).trim();
+    if (iconId) {
+      try {
+        const res = await fetch(
+          `${process.env.SUPABASE_URL}/rest/v1/icons?id=eq.${iconId}&select=svg&limit=1`,
+          {
+            headers: {
+              'apikey': process.env.SUPABASE_SERVICE_KEY,
+              'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
+            },
+          }
+        );
+        if (res.ok) {
+          const rows = await res.json();
+          if (rows?.[0]?.svg) {
+            svgRaw = rows[0].svg;
+            source = 'ai-generated';
+          }
+        }
+      } catch {
+        // fall through to generic fallback below
+      }
+    }
+  }
+
   // ── Strategy 1: Custom brand library (instant, no network) ──
   if (BRAND_ICONS[q]) {
     svgRaw = BRAND_ICONS[q];

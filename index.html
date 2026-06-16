@@ -199,6 +199,26 @@
   }
   .nav-links a:hover { color: var(--text); }
 
+  .btn-nav-signin {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px;
+    background: var(--accent);
+    color: #ffffff !important;
+    border-radius: 6px;
+    font-size: 11px !important;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+  }
+  .btn-nav-signin:hover { opacity: 0.88; color: #ffffff !important; }
+  .nav-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--border-bright);
+    object-fit: cover;
+  }
   .theme-toggle {
     display: flex; align-items: center; justify-content: center;
     width: 32px; height: 32px;
@@ -994,8 +1014,15 @@
     Sednicon
   </a>
   <ul class="nav-links">
-    <li><a href="library.html">Icon Library</a></li>
-    <li><a href="docs.html">Docs</a></li>
+    <li><a href="/library">Library</a></li>
+    <li><a href="/docs">Docs</a></li>
+    <li><a href="/generate">Generate</a></li>
+    <li><a href="/status">Status</a></li>
+    <li id="nav-auth-btn">
+      <a href="/generate" class="btn-nav-signin" id="signin-btn">
+        <span class="material-icons" style="font-size:16px;">login</span> Sign in
+      </a>
+    </li>
     <li><button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
       <span class="material-icons icon-light">dark_mode</span>
       <span class="material-icons icon-dark">light_mode</span>
