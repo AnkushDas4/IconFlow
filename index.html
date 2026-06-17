@@ -956,7 +956,8 @@
   /* ── RESPONSIVE OPTIMIZATIONS ── */
   @media (max-width: 960px) {
     nav { padding: 16px 24px; }
-    .nav-links { display: none; }
+    .nav-links { gap: 16px; }
+    .nav-links li:not(:last-child):not(:nth-last-child(2)):not(:first-child) { display: none; }
     .hero { grid-template-columns: 1fr; }
     .hero-left { padding: 120px 24px 40px; }
     .hero-right { padding: 20px 24px 80px; }
@@ -1014,9 +1015,11 @@
     Sednicon
   </a>
   <ul class="nav-links">
-    <li><a href="/library">Library</a></li>
-    <li><a href="/docs">Docs</a></li>
+    <li><a href="/library">Library</a>
+    <a href="/community">Community</a></li>
+    <li><a href="/community">Community</a></li>
     <li><a href="/generate">Generate</a></li>
+    <li><a href="/docs">Docs</a></li>
     <li><a href="/status">Status</a></li>
     <li id="nav-auth-btn">
       <a href="/generate" class="btn-nav-signin" id="signin-btn">
@@ -1187,14 +1190,14 @@
     <a href="/generate" class="btn-primary" style="display:inline-flex;">
       <span class="material-icons">auto_awesome</span> Generate an Icon
     </a>
-    <a href="/library" class="btn-ghost" style="display:inline-flex;">
-      <span class="material-icons">grid_view</span> Browse Library
+    <a href="/community" class="btn-ghost" style="display:inline-flex;">
+      <span class="material-icons">people</span> Browse Community
     </a>
   </div>
   <!-- Live community preview grid (populated by JS) -->
   <div id="community-preview" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:10px; max-width:800px; margin:48px auto 0;"></div>
   <div id="community-cta" style="margin-top:24px; display:none;">
-    <a href="/library" style="color:var(--accent); text-decoration:none; font-size:13px; font-weight:600;">View all community icons →</a>
+    <a href="/community" style="color:var(--accent); text-decoration:none; font-size:13px; font-weight:600;">View all community icons →</a>
   </div>
 </section>
 

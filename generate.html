@@ -39,6 +39,13 @@
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; overflow-x: hidden; }
+
+  /* Remove tap highlight on all interactive elements */
+  a, button, [role="button"], input[type="button"], input[type="submit"],
+  .provider-btn, .style-btn, .code-tab, .btn-generate, .btn-icon-action,
+  .history-item, .theme-toggle, .btn-nav-signin {
+    -webkit-tap-highlight-color: transparent;
+  }
   body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; transition: background 0.3s, color 0.3s; }
   body { -webkit-user-select: none; user-select: none; }
   input, textarea { -webkit-user-select: text; user-select: text; }
@@ -281,7 +288,8 @@
   @media (max-width: 960px) {
     nav { padding: 16px 24px; }
     .nav-links { gap: 20px; }
-    .nav-links li:not(:last-child):not(:nth-last-child(2)) { display: none; }
+    .nav-links { gap: 16px; }
+    .nav-links li:not(:last-child):not(:nth-last-child(2)):not(:first-child) { display: none; }
     .generate-layout { grid-template-columns: 1fr; padding: 20px 24px 60px; gap: 24px; }
     .preview-panel { position: static; }
     .provider-grid { grid-template-columns: repeat(3, 1fr); }
@@ -297,8 +305,9 @@
   </a>
   <ul class="nav-links">
     <li><a href="/library">Library</a></li>
-    <li><a href="/docs">Docs</a></li>
+    <li><a href="/community">Community</a></li>
     <li><a href="/generate" class="active">Generate</a></li>
+    <li><a href="/docs">Docs</a></li>
     <li><a href="/status">Status</a></li>
     <li id="nav-auth-btn">
       <button class="btn-nav-signin" id="signin-btn">
@@ -460,9 +469,10 @@
           <div class="field" style="margin-top:4px;">
             <label>Model</label>
             <select id="gen-model">
-              <option value="gemini-2.0-flash-exp">gemini-2.0-flash-exp</option>
-              <option value="gemini-1.5-flash">gemini-1.5-flash</option>
-              <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+              <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+              <option value="gemini-3.5-flash">gemini-3.5-flash</option>
+              <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+              <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite</option>
             </select>
           </div>
           <div class="field" style="margin-top:4px;">
@@ -598,14 +608,14 @@ const sessionHistory = [];
 
 // ── PROVIDER MODELS ──
 const PROVIDER_MODELS = {
-  gemini: ['gemini-2.0-flash-exp', 'gemini-1.5-flash', 'gemini-1.5-pro'],
+  gemini: ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-2.5-pro', 'gemini-3.1-flash-lite'],
   openai: ['gpt-4o-mini', 'gpt-4o', 'gpt-4-turbo'],
   anthropic: ['claude-sonnet-4-6', 'claude-opus-4-6', 'claude-haiku-4-5'],
   groq: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768'],
   mistral: ['mistral-large-latest', 'mistral-small-latest', 'open-mixtral-8x22b'],
   nvidia: ['meta/llama-3.1-70b-instruct', 'mistralai/mistral-large-2-instruct', 'nvidia/llama-3.1-nemotron-70b-instruct'],
   together: ['meta-llama/Llama-3-70b-chat-hf', 'mistralai/Mixtral-8x22B-Instruct-v0.1'],
-  openrouter: ['google/gemini-2.0-flash-exp:free', 'anthropic/claude-sonnet-4-6', 'meta-llama/llama-3.3-70b-instruct:free'],
+  openrouter: ['google/gemini-2.5-flash', 'anthropic/claude-sonnet-4-6', 'meta-llama/llama-3.3-70b-instruct:free'],
 };
 
 function updateModelSelect(provider) {

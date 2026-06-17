@@ -33,6 +33,7 @@
     --ai-gradient: linear-gradient(135deg, #818cf8, #5b8def, #38bdf8);
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  a, button, [role="button"], input[type="button"], .theme-toggle, .btn-nav-signin { -webkit-tap-highlight-color: transparent; }
   body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; transition: background 0.3s, color 0.3s; -webkit-user-select: none; user-select: none; }
   input, textarea { -webkit-user-select: text; user-select: text; }
 
@@ -130,7 +131,8 @@
 
   @media (max-width: 960px) {
     nav { padding: 16px 24px; }
-    .nav-links li:not(:last-child):not(:nth-last-child(2)) { display: none; }
+    .nav-links { gap: 16px; }
+    .nav-links li:not(:last-child):not(:nth-last-child(2)):not(:first-child) { display: none; }
     .page { padding: 100px 24px 60px; }
     .icon-layout { grid-template-columns: 1fr; }
     .icon-preview-card { position: static; }
@@ -143,8 +145,9 @@
   <a href="/" class="nav-logo"><div class="nav-logo-dot"></div>Sednicon</a>
   <ul class="nav-links">
     <li><a href="/library">Library</a></li>
-    <li><a href="/docs">Docs</a></li>
+    <li><a href="/community" class="active">Community</a></li>
     <li><a href="/generate">Generate</a></li>
+    <li><a href="/docs">Docs</a></li>
     <li><a href="/status">Status</a></li>
     <li id="nav-auth-btn"><button class="btn-nav-signin" id="signin-btn"><span class="material-icons" style="font-size:16px;">login</span> Sign in</button></li>
     <li><button class="theme-toggle" id="theme-toggle"><span class="material-icons icon-light">dark_mode</span><span class="material-icons icon-dark">light_mode</span></button></li>

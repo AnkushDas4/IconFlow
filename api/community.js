@@ -51,14 +51,24 @@ export default async function handler(request) {
       const { searchParams } = new URL(request.url);
       const page = Math.max(0, parseInt(searchParams.get('page') || '0'));
       const sort = searchParams.get('sort') === 'likes' ? 'likes' : 'created_at';
+      const provider = searchParams.get('provider') || null;
+      const q = searchParams.get('q') || null;
       const limit = 24;
       const offset = page * limit;
 
-      const icons = await supabaseQuery(
-        `/icons?hidden=eq.false&select=id,prompt,svg,color,size,style,provider,model,likes,created_at&order=${sort}.desc&limit=${limit}&offset=${offset}`
-      );
+      let filter = `hidden=eq.false`;
+      if (provider) filter += `&provider=eq.${encodeURIComponent(provider)}`;
 
-      return json({ icons: icons ?? [], page, hasMore: (icons?.length ?? 0) === limit });
+      let path = `/icons?${filter}&select=id,prompt,svg,color,size,style,provider,model,likes,created_at&order=${sort}.desc&limit=${limit}&offset=${offset}`;
+
+      const icons = await supabaseQuery(path);
+
+      // Client-side prompt search (Supabase free tier doesn't have full-text search)
+      const filtered = q
+        ? (icons ?? []).filter(i => i.prompt?.toLowerCase().includes(q.toLowerCase()))
+        : (icons ?? []);
+
+      return json({ icons: filtered, page, hasMore: (icons?.length ?? 0) === limit });
     }
 
     if (request.method === 'POST') {

@@ -40,8 +40,8 @@ Output the SVG element and absolutely nothing else.`;
 const PROVIDERS = {
   gemini: {
     name: 'Gemini',
-    models: ['gemini-2.0-flash-exp', 'gemini-1.5-flash', 'gemini-1.5-pro'],
-    defaultModel: 'gemini-2.0-flash-exp',
+    models: ['gemini-3.5-flash', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3.1-flash-lite'],
+    defaultModel: 'gemini-2.5-flash',
     call: callGemini,
   },
   openai: {
@@ -86,8 +86,8 @@ const PROVIDERS = {
   },
   openrouter: {
     name: 'OpenRouter',
-    models: ['anthropic/claude-sonnet-4-6', 'google/gemini-2.0-flash-exp:free', 'meta-llama/llama-3.3-70b-instruct:free'],
-    defaultModel: 'google/gemini-2.0-flash-exp:free',
+    models: ['anthropic/claude-sonnet-4-6', 'google/gemini-2.5-flash', 'meta-llama/llama-3.3-70b-instruct:free'],
+    defaultModel: 'google/gemini-2.5-flash',
     call: callOpenAICompat,
     baseUrl: 'https://openrouter.ai/api/v1',
   },

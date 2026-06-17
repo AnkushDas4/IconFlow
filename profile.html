@@ -33,6 +33,7 @@
     --ai-gradient: linear-gradient(135deg, #818cf8, #5b8def, #38bdf8);
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  a, button, [role="button"], input[type="button"], .theme-toggle, .btn-nav-signin { -webkit-tap-highlight-color: transparent; }
   body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; transition: background 0.3s, color 0.3s; -webkit-user-select: none; user-select: none; }
 
   nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 20px 48px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid transparent; transition: border-color 0.4s, background 0.4s; }
@@ -102,7 +103,8 @@
 
   @media (max-width: 960px) {
     nav { padding: 16px 24px; }
-    .nav-links li:not(:last-child):not(:nth-last-child(2)) { display: none; }
+    .nav-links { gap: 16px; }
+    .nav-links li:not(:last-child):not(:nth-last-child(2)):not(:first-child) { display: none; }
     .page { padding: 100px 24px 60px; }
     .profile-header { flex-wrap: wrap; }
     .btn-signout { margin-left: 0; }
@@ -116,8 +118,9 @@
   <a href="/" class="nav-logo"><div class="nav-logo-dot"></div>Sednicon</a>
   <ul class="nav-links">
     <li><a href="/library">Library</a></li>
-    <li><a href="/docs">Docs</a></li>
+    <li><a href="/community">Community</a></li>
     <li><a href="/generate">Generate</a></li>
+    <li><a href="/docs">Docs</a></li>
     <li><a href="/status">Status</a></li>
     <li id="nav-auth-btn"><button class="btn-nav-signin" id="signin-btn"><span class="material-icons" style="font-size:16px;">login</span> Sign in</button></li>
     <li><button class="theme-toggle" id="theme-toggle"><span class="material-icons icon-light">dark_mode</span><span class="material-icons icon-dark">light_mode</span></button></li>
@@ -229,13 +232,16 @@ document.getElementById('page-content').innerHTML = `
     </a>
   </div>
   <div class="icons-grid" id="icons-grid">
-    ${icons?.length ? icons.map(icon => `
+    ${icons?.length ? icons.map(icon => {
+      const isDark = document.documentElement.classList.contains('dark');
+      const colored = (icon.svg || '').replace(/currentColor/g, isDark ? '#ffffff' : '#0a0a0a');
+      return `
       <a class="icon-card" href="/icon/${icon.id}">
-        <div>${icon.svg}</div>
+        <div style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;">${colored}</div>
         <div class="icon-card-prompt">${icon.prompt}</div>
         <div class="icon-card-likes"><span class="material-icons">favorite</span>${icon.likes ?? 0}</div>
-      </a>
-    `).join('') : `
+      </a>`;
+    }).join('') : `
       <div class="icons-empty" style="grid-column:1/-1;">
         <span class="material-icons">auto_awesome</span>
         No icons yet. <a href="/generate">Generate your first icon →</a>
@@ -259,5 +265,16 @@ document.querySelectorAll('.btn-delete-key').forEach(btn => {
   });
 });
 </script>
+
+<footer style="margin-top:40px; padding:24px 48px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; background:var(--surface);">
+  <a href="/" style="font-weight:700; font-size:15px; text-decoration:none; color:var(--text);">Sednicon</a>
+  <div style="display:flex; gap:20px; flex-wrap:wrap;">
+    <a href="/library" style="font-size:11px; color:var(--text-dim); text-decoration:none; letter-spacing:0.06em; text-transform:uppercase;">Library</a>
+    <a href="/community" style="font-size:11px; color:var(--text-dim); text-decoration:none; letter-spacing:0.06em; text-transform:uppercase;">Community</a>
+    <a href="/generate" style="font-size:11px; color:var(--text-dim); text-decoration:none; letter-spacing:0.06em; text-transform:uppercase;">Generate</a>
+    <a href="/docs" style="font-size:11px; color:var(--text-dim); text-decoration:none; letter-spacing:0.06em; text-transform:uppercase;">Docs</a>
+  </div>
+  <div style="font-size:12px; color:var(--text-dim); font-family:'JetBrains Mono',monospace;">Built by <a href="https://sednium.com" target="_blank" rel="noopener" style="color:var(--accent3); text-decoration:none;">Sednium</a></div>
+</footer>
 </body>
 </html>
