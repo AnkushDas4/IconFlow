@@ -7,11 +7,11 @@
 <meta name="description" content="Browse and search the full Sednicon icon library — 200,000+ free SVG icons and brand logos. Customize color and size, then copy the ready-to-use URL or code."/>
 <meta name="keywords" content="icon library, SVG icons, free icons, browse icons, brand logos, icon search, Sednicon"/>
 <meta name="author" content="Sednium"/>
-<link rel="canonical" href="https://sednicon.sednium.com/library.html"/>
+<link rel="canonical" href="https://sednicon.sednium.com/library"/>
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://sednicon.sednium.com/library.html"/>
+<meta property="og:url" content="https://sednicon.sednium.com/library"/>
 <meta property="og:title" content="Icon Library — Sednicon"/>
 <meta property="og:description" content="Browse and search 200,000+ free SVG icons and brand logos. Customize color and size, then copy the ready-to-use URL or code."/>
 <meta property="og:image" content="https://sednicon.sednium.com/og-image.png"/>
@@ -19,7 +19,7 @@
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:url" content="https://sednicon.sednium.com/library.html"/>
+<meta name="twitter:url" content="https://sednicon.sednium.com/library"/>
 <meta name="twitter:title" content="Icon Library — Sednicon"/>
 <meta name="twitter:description" content="Browse and search 200,000+ free SVG icons and brand logos. Customize color and size, then copy the ready-to-use URL or code."/>
 <meta name="twitter:image" content="https://sednicon.sednium.com/og-image.png"/>
@@ -479,7 +479,7 @@
 <div class="cursor-ring" id="cursorRing"></div>
 
 <nav>
-  <a href="index.html" class="nav-logo">
+  <a href="/" class="nav-logo">
     <div class="nav-logo-dot"></div>
     Sednicon
   </a>
@@ -565,8 +565,13 @@
 </button>
 
 <footer>
-  <a href="index.html" class="footer-logo">Sednicon</a>
-  <div class="footer-right">Built by <a href="https://sednium.com" target="_blank" rel="noopener" style="color:var(--accent3); text-decoration:none;">Sednium</a> · Powered by Vercel Edge · MIT License</div>
+  <a href="/" class="footer-logo">Sednicon</a>
+  <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
+    <a href="/generate" style="font-size:11px; color:var(--text-dim); text-decoration:none; letter-spacing:0.06em; text-transform:uppercase;">Generate</a>
+    <a href="/docs" style="font-size:11px; color:var(--text-dim); text-decoration:none; letter-spacing:0.06em; text-transform:uppercase;">Docs</a>
+    <a href="/status" style="font-size:11px; color:var(--text-dim); text-decoration:none; letter-spacing:0.06em; text-transform:uppercase;">Status</a>
+  </div>
+  <div class="footer-right">Built by <a href="https://sednium.com" target="_blank" rel="noopener" style="color:var(--accent3); text-decoration:none;">Sednium</a> · MIT License</div>
 </footer>
 
 <script>
@@ -948,6 +953,25 @@ if (document.documentElement.classList.contains('dark')) {
 }
 renderAll();
 renderCatBar();
+
+// ── AUTH NAV ──
+(async () => {
+  try {
+    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+    const supabase = createClient(
+      'https://ojsbvbohxojffkugwmub.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qc2J2Ym9oeG9qZmZrdWd3bXViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MDkxMjcsImV4cCI6MjA5NzA4NTEyN30.cwWSmtR55nM8dzkoWF3ORtwNQiqq2u14kG94V5KG318'
+    );
+    const { data: { user } } = await supabase.auth.getUser();
+    const authBtn = document.getElementById('nav-auth-btn');
+    if (user && authBtn) {
+      const avatar = user.user_metadata?.avatar_url
+        ? `<img src="${user.user_metadata.avatar_url}" class="nav-avatar" alt="Profile">`
+        : `<span class="material-icons" style="font-size:20px;color:var(--text-muted);">account_circle</span>`;
+      authBtn.innerHTML = `<a href="/profile" style="display:flex;align-items:center;gap:8px;text-decoration:none;">${avatar}</a>`;
+    }
+  } catch {}
+})();
 </script>
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };

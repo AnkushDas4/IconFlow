@@ -7,11 +7,11 @@
 <meta name="description" content="Full developer documentation for the Sednicon icon API: HTML, React, Vue, and CSS integration examples, plus the complete /api/render parameter reference."/>
 <meta name="keywords" content="Sednicon docs, icon API documentation, SVG icon API reference, render endpoint parameters"/>
 <meta name="author" content="Sednium"/>
-<link rel="canonical" href="https://sednicon.sednium.com/docs.html"/>
+<link rel="canonical" href="https://sednicon.sednium.com/docs"/>
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://sednicon.sednium.com/docs.html"/>
+<meta property="og:url" content="https://sednicon.sednium.com/docs"/>
 <meta property="og:title" content="Documentation — Sednicon API"/>
 <meta property="og:description" content="Full developer documentation for the Sednicon icon API: HTML, React, Vue, and CSS integration examples, plus the complete API parameter reference."/>
 <meta property="og:image" content="https://sednicon.sednium.com/og-image.png"/>
@@ -19,7 +19,7 @@
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:url" content="https://sednicon.sednium.com/docs.html"/>
+<meta name="twitter:url" content="https://sednicon.sednium.com/docs"/>
 <meta name="twitter:title" content="Documentation — Sednicon API"/>
 <meta name="twitter:description" content="Full developer documentation for the Sednicon icon API: HTML, React, Vue, and CSS integration examples, plus the complete API parameter reference."/>
 <meta name="twitter:image" content="https://sednicon.sednium.com/og-image.png"/>
@@ -1386,6 +1386,25 @@ document.querySelectorAll('.docs-nav-item').forEach(item => {
     document.getElementById(item.dataset.target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 });
+
+// ── AUTH NAV ──
+(async () => {
+  try {
+    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+    const supabase = createClient(
+      'https://ojsbvbohxojffkugwmub.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qc2J2Ym9oeG9qZmZrdWd3bXViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MDkxMjcsImV4cCI6MjA5NzA4NTEyN30.cwWSmtR55nM8dzkoWF3ORtwNQiqq2u14kG94V5KG318'
+    );
+    const { data: { user } } = await supabase.auth.getUser();
+    const authBtn = document.getElementById('nav-auth-btn');
+    if (user && authBtn) {
+      const avatar = user.user_metadata?.avatar_url
+        ? `<img src="${user.user_metadata.avatar_url}" class="nav-avatar" alt="Profile">`
+        : `<span class="material-icons" style="font-size:20px;color:var(--text-muted);">account_circle</span>`;
+      authBtn.innerHTML = `<a href="/profile" style="display:flex;align-items:center;gap:8px;text-decoration:none;">${avatar}</a>`;
+    }
+  } catch {}
+})();
 </script>
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
