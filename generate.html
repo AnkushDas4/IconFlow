@@ -629,6 +629,15 @@ import { initNav, signInWithGoogle, getUser, getSession, getSupabase } from '/js
 const nav = document.getElementById('navbar');
 window.addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 40));
 
+// ── STATE (must be declared before auth init uses it) ──
+let selectedProvider = 'gemini';
+let selectedStyle = 'fill';
+let selectedCorner = 'round';
+let currentSvg = null;
+let currentIconId = null;
+let codeTab = 'url';
+const sessionHistory = [];
+
 // ── AUTH INIT ──
 await initNav();
 const user = await getUser();
@@ -640,15 +649,6 @@ if (user) {
 } else {
   document.getElementById('google-signin-btn').addEventListener('click', signInWithGoogle);
 }
-
-// ── STATE ──
-let selectedProvider = 'gemini';
-let selectedStyle = 'fill';
-let selectedCorner = 'round';
-let currentSvg = null;
-let currentIconId = null;
-let codeTab = 'url';
-const sessionHistory = [];
 
 // ── PROVIDER MODELS ──
 const PROVIDER_MODELS = {
