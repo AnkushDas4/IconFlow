@@ -1,6 +1,7 @@
 /**
- * Sednicon API - The Unified Icon Engine v3
- * Sources: Custom Brands → Explicit set → Simple Icons → 16-set fallback chain → Iconify full-text search → Generic fallback
+ * Sednicon API - The Unified Icon Engine v4
+ * Audit fixes: arch-1 (modular), arch-2 (parallel+cache), api-1 (rate-limit),
+ *             api-4 (SVG sanitization), api-6 (anon key + RLS)
  */
 
 export const config = { runtime: 'edge' };
@@ -15,7 +16,6 @@ const BRAND_ICONS = {
 };
 
 // ─── 2. ICON SET ROUTING TABLE ───────────────────────────────────────────────
-// Maps keyword → Iconify prefix. Order = priority for the fallback chain.
 const BRAND_SET = new Set([
   'github','google','apple','microsoft','amazon','meta','twitter','x',
   'linkedin','youtube','netflix','spotify','discord','slack','figma',
@@ -50,7 +50,122 @@ const FALLBACK_SETS = [
   'emojione',
 ];
 
-// ─── 3. HELPERS ──────────────────────────────────────────────────────────────
+// [arch-2] Top 3 sets to probe in parallel before falling back to sequential
+const PARALLEL_PROBE_SETS = ['material-symbols', 'lucide', 'heroicons'];
+
+const FALLBACK_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>';
+
+// [api-1] Rate limiting — in-memory sliding window per IP
+const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
+const RATE_LIMIT_MAX = 120;           // 120 requests per minute per IP
+const rateLimitMap = new Map();       // ip → { count, windowStart }
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  let entry = rateLimitMap.get(ip);
+
+  if (!entry || (now - entry.windowStart) > RATE_LIMIT_WINDOW_MS) {
+    entry = { count: 1, windowStart: now };
+    rateLimitMap.set(ip, entry);
+
+    // Evict stale entries periodically (keep map from growing unbounded)
+    if (rateLimitMap.size > 10_000) {
+      for (const [key, val] of rateLimitMap) {
+        if (now - val.windowStart > RATE_LIMIT_WINDOW_MS) rateLimitMap.delete(key);
+      }
+    }
+    return true;
+  }
+
+  entry.count++;
+  return entry.count <= RATE_LIMIT_MAX;
+}
+
+// ─── SVG SANITIZER [api-4] ───────────────────────────────────────────────────
+
+// Regex to match javascript: or data: URLs in href/xlink:href
+const DANGEROUS_URL_RE = /^(javascript|data|vbscript):/i;
+
+/**
+ * Sanitize an SVG string to prevent XSS attacks.
+ * Strips: <script>, event handlers (on*), javascript:/data: URLs, foreignObject
+ */
+function sanitizeSvg(svgString) {
+  // Quick check — if there's nothing dangerous, fast-path return
+  if (!/<script|<iframe|<object|<embed|<foreignObject| on|javascript:|data:/i.test(svgString)) {
+    return svgString;
+  }
+
+  let svg = svgString;
+
+  // 1. Remove dangerous tags entirely
+  svg = svg.replace(/<script[\s\S]*?<\/script\s*>/gi, '');
+  svg = svg.replace(/<iframe[\s\S]*?<\/iframe\s*>/gi, '');
+  svg = svg.replace(/<object[\s\S]*?<\/object\s*>/gi, '');
+  svg = svg.replace(/<embed[\s\S]*?>/gi, '');
+  svg = svg.replace(/<foreignObject[\s\S]*?<\/foreignObject\s*>/gi, '');
+  svg = svg.replace(/<applet[\s\S]*?<\/applet\s*>/gi, '');
+  svg = svg.replace(/<link[\s\S]*?>/gi, '');
+  svg = svg.replace(/<meta[\s\S]*?>/gi, '');
+
+  // 2. Remove event handler attributes (onclick, onload, onerror, etc.)
+  svg = svg.replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+
+  // 3. Remove dangerous href/xlink:href values
+  svg = svg.replace(/(href|xlink:href)\s*=\s*["']([^"']*)["']/gi, (match, attr, val) => {
+    if (DANGEROUS_URL_RE.test(val.trim())) return '';
+    return match;
+  });
+
+  // 4. Remove style attributes that could contain expressions or url(javascript:)
+  svg = svg.replace(/style\s*=\s*["']([^"']*)["']/gi, (match, styleVal) => {
+    if (/expression\s*\(|url\s*\(\s*["']?\s*(javascript|data|vbscript):/i.test(styleVal)) return '';
+    return match;
+  });
+
+  return svg;
+}
+
+// ─── LRU CACHE [arch-2] ──────────────────────────────────────────────────────
+
+const MAX_CACHE_SIZE = 2000;
+const svgCache = new Map(); // key → { svg, source, timestamp }
+
+function cacheGet(key) {
+  const entry = svgCache.get(key);
+  if (!entry) return null;
+  // Move to end (most recently used) for LRU eviction
+  svgCache.delete(key);
+  svgCache.set(key, entry);
+  return entry;
+}
+
+function cacheSet(key, svg, source) {
+  if (svgCache.has(key)) svgCache.delete(key);
+  svgCache.set(key, { svg, source, timestamp: Date.now() });
+  // Evict oldest entries when over limit
+  if (svgCache.size > MAX_CACHE_SIZE) {
+    const iter = svgCache.keys();
+    for (let i = 0; i < svgCache.size - MAX_CACHE_SIZE; i++) {
+      svgCache.delete(iter.next().value);
+    }
+  }
+}
+
+// Cache TTL: 1 hour
+const CACHE_TTL_MS = 3_600_000;
+
+function cacheGetFresh(key) {
+  const entry = cacheGet(key);
+  if (!entry) return null;
+  if (Date.now() - entry.timestamp > CACHE_TTL_MS) {
+    svgCache.delete(key);
+    return null;
+  }
+  return entry;
+}
+
+// ─── MODULAR RESOLVERS [arch-1] ──────────────────────────────────────────────
 
 /** Fetch SVG from Iconify; returns string or null */
 async function fetchIconify(prefix, name) {
@@ -70,6 +185,87 @@ async function fetchIconify(prefix, name) {
   }
 }
 
+/** [arch-1] Brand Resolver: instant, no network */
+function brandResolver(q) {
+  if (BRAND_ICONS[q]) return { svg: BRAND_ICONS[q], source: 'custom-brand' };
+  return null;
+}
+
+/** [arch-1] AI Resolver: fetch from Supabase with anon key + RLS [api-6] */
+async function aiResolver(q) {
+  if (!q.startsWith('ai:')) return null;
+  const iconId = q.slice(3).trim();
+  if (!iconId) return null;
+
+  try {
+    const res = await fetch(
+      `${process.env.SUPABASE_URL}/rest/v1/icons?id=eq.${iconId}&select=svg,hidden&limit=1`,
+      {
+        headers: {
+          'apikey': process.env.SUPABASE_ANON_KEY,       // [api-6] anon key, not service key
+          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+        },
+      }
+    );
+    if (!res.ok) return null;
+    const rows = await res.json();
+    if (!rows?.[0]?.svg) return null;
+    // RLS will enforce: only non-hidden icons visible to anon
+    return { svg: sanitizeSvg(rows[0].svg), source: 'ai-generated' }; // [api-4] sanitize
+  } catch {
+    return null;
+  }
+}
+
+/** [arch-1] Iconify Resolver: explicit prefix, brand routing, parallel+sequential fallback */
+async function iconifyResolver(q, setHint) {
+  // ── Explicit prefix in query (e.g. "lucide:home") ──
+  if (q.includes(':')) {
+    const colonIdx = q.indexOf(':');
+    const prefix = q.slice(0, colonIdx);
+    const name   = q.slice(colonIdx + 1);
+    const svg = await fetchIconify(prefix, name);
+    if (svg) return { svg, source: `iconify:${prefix}` };
+    return null;
+  }
+
+  // ── Explicit ?set= parameter override ──
+  if (setHint) {
+    const svg = await fetchIconify(setHint, q.replace(/_/g, '-'));
+    if (svg) return { svg, source: `iconify:${setHint}` };
+  }
+
+  // ── Brand → simple-icons ──
+  if (BRAND_SET.has(q)) {
+    const svg = await fetchIconify('simple-icons', q);
+    if (svg) return { svg, source: 'iconify:simple-icons' };
+  }
+
+  // ── [arch-2] Parallel-probe top 3 sets first ──
+  const hyphenName = q.replace(/_/g, '-');
+  const probeResults = await Promise.all(
+    PARALLEL_PROBE_SETS.map(async (prefix) => {
+      const svg = await fetchIconify(prefix, hyphenName);
+      return svg ? { svg, source: `iconify:${prefix}` } : null;
+    })
+  );
+  const probeHit = probeResults.find(r => r !== null);
+  if (probeHit) return probeHit;
+
+  // ── Sequential fallback for remaining sets (skip already-probed) ──
+  for (const prefix of FALLBACK_SETS) {
+    if (PARALLEL_PROBE_SETS.includes(prefix)) continue; // already tried
+    const svg = await fetchIconify(prefix, hyphenName);
+    if (svg) return { svg, source: `iconify:${prefix}` };
+  }
+
+  // ── Full-text search fallback ──
+  const searchResult = await searchIconifyFallback(q.replace(/[-_]/g, ' '));
+  if (searchResult) return { svg: searchResult, source: 'iconify:search' };
+
+  return null;
+}
+
 /** Last resort: search Iconify's full index for the closest matching icon */
 async function searchIconifyFallback(query) {
   try {
@@ -85,36 +281,34 @@ async function searchIconifyFallback(query) {
   }
 }
 
-/** Apply size & color to a raw SVG string */
-function applyStyle(svgRaw, size, cleanColor) {
+/** [arch-1] SVG Transformer: apply size & color to a raw SVG string */
+function svgTransformer(svgRaw, size, cleanColor) {
   // Strip existing width/height
-  svgRaw = svgRaw
+  let svg = svgRaw
     .replace(/\s+width="[^"]*"/g, '')
     .replace(/\s+height="[^"]*"/g, '');
 
   // Inject size on root <svg>
-  svgRaw = svgRaw.replace(/^<svg/, `<svg width="${size}" height="${size}"`);
+  svg = svg.replace(/^<svg/, `<svg width="${size}" height="${size}"`);
 
   // Replace currentColor
-  svgRaw = svgRaw.replace(/currentColor/gi, cleanColor);
+  svg = svg.replace(/currentColor/gi, cleanColor);
 
   // Replace explicit fills (skip 'none')
-  svgRaw = svgRaw.replace(/fill="(?!none\b)[^"]+"/gi, `fill="${cleanColor}"`);
+  svg = svg.replace(/fill="(?!none\b)[^"]+"/gi, `fill="${cleanColor}"`);
 
   // Replace explicit strokes (skip 'none')
-  svgRaw = svgRaw.replace(/stroke="(?!none\b)[^"]+"/gi, `stroke="${cleanColor}"`);
+  svg = svg.replace(/stroke="(?!none\b)[^"]+"/gi, `stroke="${cleanColor}"`);
 
   // If still no fill attr, add to root
-  if (!/fill=/.test(svgRaw)) {
-    svgRaw = svgRaw.replace(/^<svg/, `<svg fill="${cleanColor}"`);
+  if (!/fill=/.test(svg)) {
+    svg = svg.replace(/^<svg/, `<svg fill="${cleanColor}"`);
   }
 
-  return svgRaw;
+  return svg;
 }
 
-const FALLBACK_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>';
-
-// ─── 4. HANDLER ─────────────────────────────────────────────────────────────
+// ─── HANDLER ─────────────────────────────────────────────────────────────────
 export default async function handler(request) {
   // CORS preflight
   if (request.method === 'OPTIONS') {
@@ -129,6 +323,27 @@ export default async function handler(request) {
     });
   }
 
+  // [api-1] Rate limiting — extract client IP from Vercel headers
+  const clientIp =
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown';
+
+  if (!checkRateLimit(clientIp)) {
+    return new Response(
+      '<svg viewBox="0 0 24 24" fill="currentColor"><text x="12" y="16" text-anchor="middle" font-size="10" fill="#ef4444">429</text></svg>',
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'image/svg+xml; charset=utf-8',
+          'Retry-After': '60',
+          'X-RateLimit-Limit': String(RATE_LIMIT_MAX),
+          'X-RateLimit-Window': '60s',
+        },
+      }
+    );
+  }
+
   const { searchParams } = new URL(request.url);
   const q       = (searchParams.get('q') || 'circle').toLowerCase().trim();
   const color   = searchParams.get('color') || 'black';
@@ -141,85 +356,68 @@ export default async function handler(request) {
     ? `#${color}`
     : /^[a-zA-Z]+$/.test(color) ? color : '#000000';
 
+  // [arch-2] Check LRU cache first
+  const cacheKey = `${q}:${cleanColor}:${size}:${setHint || ''}`;
+  const cached = cacheGetFresh(cacheKey);
+  if (cached) {
+    return new Response(cached.svg, {
+      headers: {
+        'Content-Type': 'image/svg+xml; charset=utf-8',
+        'Cache-Control': 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000, immutable',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Vary': 'Accept',
+        'X-Sednicon-Source': cached.source,
+        'X-Sednicon-Cache': 'HIT',
+        'X-RateLimit-Limit': String(RATE_LIMIT_MAX),
+        'X-RateLimit-Window': '60s',
+      },
+    });
+  }
+
+  // ── Resolve through modular pipeline [arch-1] ──
   let svgRaw = null;
   let source = 'fallback';
 
-  // ── Strategy 0: AI-generated icon from Supabase (q=ai:{uuid}) ──
-  if (q.startsWith('ai:')) {
-    const iconId = q.slice(3).trim();
-    if (iconId) {
-      try {
-        const res = await fetch(
-          `${process.env.SUPABASE_URL}/rest/v1/icons?id=eq.${iconId}&select=svg&limit=1`,
-          {
-            headers: {
-              'apikey': process.env.SUPABASE_SERVICE_KEY,
-              'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
-            },
-          }
-        );
-        if (res.ok) {
-          const rows = await res.json();
-          if (rows?.[0]?.svg) {
-            svgRaw = rows[0].svg;
-            source = 'ai-generated';
-          }
-        }
-      } catch {
-        // fall through to generic fallback below
-      }
+  // Strategy 0: AI-generated icon
+  const aiResult = await aiResolver(q);
+  if (aiResult) {
+    svgRaw = aiResult.svg;    // already sanitized inside aiResolver
+    source = aiResult.source;
+  }
+
+  // Strategy 1: Custom brand library (instant, no network)
+  if (!svgRaw) {
+    const brandResult = brandResolver(q);
+    if (brandResult) {
+      svgRaw = brandResult.svg;
+      source = brandResult.source;
     }
   }
 
-  // ── Strategy 1: Custom brand library (instant, no network) ──
-  if (BRAND_ICONS[q]) {
-    svgRaw = BRAND_ICONS[q];
-    source = 'custom-brand';
-  }
-
-  // ── Strategy 2: Explicit set prefix in query (e.g. "lucide:home") ──
-  if (!svgRaw && q.includes(':')) {
-    const colonIdx = q.indexOf(':');
-    const prefix = q.slice(0, colonIdx);
-    const name   = q.slice(colonIdx + 1);
-    svgRaw = await fetchIconify(prefix, name);
-    if (svgRaw) source = `iconify:${prefix}`;
-  }
-
-  // ── Strategy 3: Explicit ?set= parameter override ──
-  if (!svgRaw && setHint) {
-    svgRaw = await fetchIconify(setHint, q.replace(/_/g, '-'));
-    if (svgRaw) source = `iconify:${setHint}`;
-  }
-
-  // ── Strategy 4: Brand → simple-icons ──
-  if (!svgRaw && BRAND_SET.has(q)) {
-    svgRaw = await fetchIconify('simple-icons', q);
-    if (svgRaw) source = 'iconify:simple-icons';
-  }
-
-  // ── Strategy 5: Multi-set fallback chain (material-symbols → lucide → …) ──
+  // Strategy 2-6: Iconify resolution (parallel + sequential)
   if (!svgRaw) {
-    for (const prefix of FALLBACK_SETS) {
-      const hyphenName = q.replace(/_/g, '-');
-      svgRaw = await fetchIconify(prefix, hyphenName);
-      if (svgRaw) { source = `iconify:${prefix}`; break; }
+    const iconifyResult = await iconifyResolver(q, setHint);
+    if (iconifyResult) {
+      svgRaw = iconifyResult.svg;
+      source = iconifyResult.source;
     }
   }
 
-  // ── Strategy 6: Iconify full-text search (closest match across 200k+ icons) ──
-  if (!svgRaw) {
-    svgRaw = await searchIconifyFallback(q.replace(/[-_]/g, ' '));
-    if (svgRaw) source = 'iconify:search';
-  }
-
-  // ── Strategy 7: Hardcoded fallback ──
+  // Strategy 7: Hardcoded fallback
   if (!svgRaw) {
     svgRaw = FALLBACK_SVG;
     source = 'generic-fallback';
   }
 
-  const output = applyStyle(svgRaw, size, cleanColor);
+  // [api-4] Sanitize ALL SVG output (defense-in-depth, even for Brand icons)
+  svgRaw = sanitizeSvg(svgRaw);
+
+  // Apply style transforms
+  const output = svgTransformer(svgRaw, size, cleanColor);
+
+  // Cache the result [arch-2]
+  cacheSet(cacheKey, output, source);
 
   return new Response(output, {
     headers: {
@@ -229,6 +427,9 @@ export default async function handler(request) {
       'Access-Control-Allow-Methods': 'GET, OPTIONS',
       'Vary': 'Accept',
       'X-Sednicon-Source': source,
+      'X-Sednicon-Cache': 'MISS',
+      'X-RateLimit-Limit': String(RATE_LIMIT_MAX),
+      'X-RateLimit-Window': '60s',
     },
   });
 }
