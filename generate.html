@@ -717,10 +717,34 @@ document.getElementById('key-toggle').addEventListener('click', () => {
   document.getElementById('key-toggle-icon').textContent = keyVisible ? 'visibility_off' : 'visibility';
 });
 
+// Clear saved key dots when user starts typing a new key
+document.getElementById('api-key-input').addEventListener('focus', () => {
+  const input = document.getElementById('api-key-input');
+  if (input.dataset.saved === 'true') {
+    input.value = '';
+    input.dataset.saved = '';
+    document.getElementById('key-status-label').textContent = '(will replace saved key)';
+    document.getElementById('key-status-label').style.color = 'var(--accent2)';
+  }
+});
+document.getElementById('api-key-input').addEventListener('blur', () => {
+  const input = document.getElementById('api-key-input');
+  // If user cleared the field without typing, restore saved state indicator
+  if (!input.value && input.dataset.saved === '') {
+    loadSavedKey(selectedProvider);
+  }
+});
+
 // ── LOAD SAVED KEY ──
 async function loadSavedKey(provider) {
   if (!user) return;
-  document.getElementById('key-status-label').textContent = '(loading...)';
+  const keyInput = document.getElementById('api-key-input');
+  const statusLabel = document.getElementById('key-status-label');
+  const checkbox = document.getElementById('save-key-checkbox');
+
+  keyInput.disabled = true;
+  statusLabel.textContent = '(checking...)';
+
   try {
     const session = await getSession();
     const res = await fetch(`/api/keys?provider=${provider}`, {
@@ -729,17 +753,25 @@ async function loadSavedKey(provider) {
     if (res.ok) {
       const { hasKey } = await res.json();
       if (hasKey) {
-        document.getElementById('api-key-input').value = '••••••••••••••••';
-        document.getElementById('api-key-input').dataset.saved = 'true';
-        document.getElementById('save-key-checkbox').checked = true;
-        document.getElementById('key-status-label').textContent = '(saved ✓)';
+        keyInput.value = '••••••••••••••••';
+        keyInput.dataset.saved = 'true';
+        keyInput.placeholder = 'Using saved key — paste new key to replace';
+        checkbox.checked = true;
+        statusLabel.textContent = '(saved ✓)';
+        statusLabel.style.color = '#22c55e';
       } else {
-        document.getElementById('api-key-input').value = '';
-        document.getElementById('api-key-input').dataset.saved = '';
-        document.getElementById('key-status-label').textContent = '';
+        keyInput.value = '';
+        keyInput.dataset.saved = '';
+        keyInput.placeholder = 'Paste your API key...';
+        statusLabel.textContent = '';
+        statusLabel.style.color = '';
       }
     }
-  } catch { document.getElementById('key-status-label').textContent = ''; }
+  } catch {
+    statusLabel.textContent = '';
+  } finally {
+    keyInput.disabled = false;
+  }
 }
 
 // ── GENERATE ──
@@ -769,6 +801,13 @@ document.getElementById('btn-generate').addEventListener('click', async () => {
 
   setGenerating(true);
   setStatus('Calling AI model...');
+  // Reset any previous error state
+  const statusEl = document.getElementById('generation-status');
+  statusEl.style.background = '';
+  statusEl.style.borderTop = '';
+  const dot = document.querySelector('.status-dot-ai');
+  dot.style.background = '';
+  dot.style.animation = '';
   hideResult();
 
   try {
@@ -801,6 +840,12 @@ document.getElementById('btn-generate').addEventListener('click', async () => {
 
   } catch (err) {
     setStatus(`Error: ${err.message}`);
+    // Keep the error visible
+    document.getElementById('generation-status').classList.add('visible');
+    document.getElementById('generation-status').style.background = 'rgba(239,68,68,0.06)';
+    document.getElementById('generation-status').style.borderTop = '1px solid rgba(239,68,68,0.2)';
+    document.querySelector('.status-dot-ai').style.background = '#ef4444';
+    document.querySelector('.status-dot-ai').style.animation = 'none';
   } finally {
     setGenerating(false);
   }
